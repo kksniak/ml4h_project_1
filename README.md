@@ -1,1 +1,1 @@
-Hi
+All data should be in the data directory.
