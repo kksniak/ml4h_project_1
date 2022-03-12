@@ -13,7 +13,9 @@ def load_arythmia_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
         pathlib.Path(data_dir).joinpath("mitbih_train.csv"), header=None
     )
     df_train = df_train.sample(frac=1)
-    df_test = pd.read_csv(pathlib.Path(data_dir).joinpath("mitbih_test.csv"))
+    df_test = pd.read_csv(
+        pathlib.Path(data_dir).joinpath("mitbih_test.csv"), header=None
+    )
 
     Y = np.array(df_train[187].values).astype(np.int8)
     X = np.array(df_train[list(range(187))].values)[..., np.newaxis]
@@ -24,7 +26,7 @@ def load_arythmia_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
     return X, Y, X_test, Y_test
 
 
-def load_PTB_dataset():
+def load_PTB_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
     data_dir = pathlib.Path(__file__).parents[1].joinpath("data")
     df_1 = pd.read_csv(pathlib.Path(data_dir).joinpath("ptbdb_normal.csv"), header=None)
     df_2 = pd.read_csv(
