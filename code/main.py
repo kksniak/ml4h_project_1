@@ -1,11 +1,21 @@
 import torch
 from utils import CNN_output_shape
 from models import vanillaCNN
+from baselines import (
+    train_mitbih_baseline,
+    test_mitbih_baseline,
+    train_PTBDB_baseline,
+    test_PTBDB_baseline,
+)
 from datasets import load_arythmia_dataset, load_PTB_dataset
 from utils import CNN_output_shape
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 import pytorch_lightning as pl
+from sklearn.metrics import roc_auc_score, roc_curve
+import matplotlib.pyplot as plt
+from sklearn.metrics import PrecisionRecallDisplay
+
 
 SEED = 42
 torch.manual_seed(SEED)
@@ -14,12 +24,10 @@ cnn_channels = [1, 20, 20, 40]
 kernel_size = 10
 
 cnn_out_shape = 187
+x, y, x_test, y_test = load_arythmia_dataset()
 
 for i in range(1, len(cnn_channels)):
     cnn_out_shape = CNN_output_shape(cnn_out_shape, 1, kernel_size)
-
-
-x, y, x_test, y_test = load_arythmia_dataset()
 
 
 dataset = TensorDataset(
@@ -28,7 +36,37 @@ dataset = TensorDataset(
 )
 test_dataset = TensorDataset(torch.tensor(x_test), torch.tensor(y_test))
 
-train_loader = DataLoader(dataset, batch_size=32)
-vCNN = vanillaCNN(cnn_channels, kernel_size, cnn_channels[-1] * cnn_out_shape, 5)
-trainer = pl.Trainer(gpus=1,max_epochs=2)
-trainer.fit(model=vCNN, train_dataloader=train_loader)
+# train_loader = DataLoader(dataset, batch_size=32)
+# vCNN = vanillaCNN(cnn_channels, kernel_size, cnn_channels[-1] * cnn_out_shape, 5)
+# trainer = pl.Trainer(gpus=1,max_epochs=2)
+# trainer.fit(model=vCNN, train_dataloader=train_loader)
+
+# train_mitbih_baseline(x, y)
+baseline_mitbih_preds = test_mitbih_baseline(x_test, y_test)
+
+
+##PTBDB DATASET
+
+x, y, x_test, y_test = load_PTB_dataset()
+# train_PTBDB_baseline(x, y)
+baseline_PTBDB_preds = test_PTBDB_baseline(x_test, y_test)
+print("ROC AUC: ", roc_auc_score(y_test, baseline_PTBDB_preds))
+fpr, tpr, thresholds = roc_curve(y_test, baseline_PTBDB_preds, pos_label=1)
+plt.figure()
+lw = 2
+plt.plot(
+    fpr, tpr, color="darkorange", lw=lw, label="ROC curve",
+)
+plt.plot([0, 1], [0, 1], color="navy", lw=lw, linestyle="--")
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("Receiver operating characteristic example")
+plt.legend(loc="lower right")
+plt.show()
+display = PrecisionRecallDisplay.from_predictions(
+    y_test, baseline_PTBDB_preds, name="Baseline"
+)
+_ = display.ax_.set_title("2-class Precision-Recall curve")
+plt.show()

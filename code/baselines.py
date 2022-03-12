@@ -1,8 +1,10 @@
 from statistics import mode
 import pandas as pd
 import numpy as np
+from sklearn.metrics import f1_score, accuracy_score
 
-from keras import optimizers, losses, activations, models
+from tensorflow.keras import optimizers, losses, activations, models
+
 from keras.callbacks import (
     ModelCheckpoint,
     EarlyStopping,
@@ -121,3 +123,71 @@ def get_arythmia_baseline_model() -> models.Model:
     )
     model.summary()
     return model
+
+
+def train_mitbih_baseline(X: np.ndarray, Y: np.ndarray) -> None:
+    model = get_arythmia_baseline_model()
+    file_path = "baseline_cnn_mitbih.h5"
+    checkpoint = ModelCheckpoint(
+        file_path, monitor="val_acc", verbose=1, save_best_only=True, mode="max"
+    )
+    early = EarlyStopping(monitor="val_acc", mode="max", patience=5, verbose=1)
+    redonplat = ReduceLROnPlateau(monitor="val_acc", mode="max", patience=3, verbose=2)
+    callbacks_list = [checkpoint, early, redonplat]  # early
+
+    model.fit(
+        X, Y, epochs=1000, verbose=2, callbacks=callbacks_list, validation_split=0.1
+    )
+
+
+def test_mitbih_baseline(X_test: np.ndarray, Y_test: np.ndarray) -> np.ndarray:
+    model = get_arythmia_baseline_model()
+    file_path = "baseline_cnn_mitbih.h5"
+    model.load_weights(file_path)
+
+    pred_test = model.predict(X_test)
+    pred_test = np.argmax(pred_test, axis=-1)
+
+    f1 = f1_score(Y_test, pred_test, average="macro")
+
+    print("Test f1 score : %s " % f1)
+
+    acc = accuracy_score(Y_test, pred_test)
+
+    print("Test accuracy score : %s " % acc)
+    return pred_test
+
+
+def train_PTBDB_baseline(X: np.ndarray, Y: np.ndarray) -> None:
+    model = get_PTBDB_baseline_model()
+    file_path = "baseline_cnn_ptbdb.h5"
+    checkpoint = ModelCheckpoint(
+        file_path, monitor="val_acc", verbose=1, save_best_only=True, mode="max"
+    )
+    early = EarlyStopping(monitor="val_acc", mode="max", patience=5, verbose=1)
+    redonplat = ReduceLROnPlateau(monitor="val_acc", mode="max", patience=3, verbose=2)
+    callbacks_list = [checkpoint, early, redonplat]  # early
+
+    model.fit(
+        X, Y, epochs=1000, verbose=2, callbacks=callbacks_list, validation_split=0.1
+    )
+
+
+def test_PTBDB_baseline(X_test: np.ndarray, Y_test: np.ndarray) -> np.ndarray:
+    model = get_PTBDB_baseline_model()
+    file_path = "baseline_cnn_ptbdb.h5"
+    model.load_weights(file_path)
+
+    pred_test_scores = model.predict(X_test)
+    pred_test = (pred_test_scores > 0.5).astype(np.int8)
+
+    f1 = f1_score(Y_test, pred_test)
+
+    print("Test f1 score : %s " % f1)
+
+    acc = accuracy_score(Y_test, pred_test)
+
+    print("Test accuracy score : %s " % acc)
+
+    return pred_test_scores
+
