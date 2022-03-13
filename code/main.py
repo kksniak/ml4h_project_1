@@ -33,40 +33,40 @@ cnn_out_shape = 187
 for i in range(1, len(cnn_channels)):
     cnn_out_shape = CNN_output_shape(cnn_out_shape, 1, kernel_size)
 
-##Arythmia DATASET
-x, y, x_test, y_test = load_arythmia_dataset()
+# ##Arythmia DATASET
+# x, y, x_test, y_test = load_arythmia_dataset()
 
 
-dataset = TensorDataset(
-    torch.tensor(x, dtype=torch.float).squeeze(),
-    torch.tensor(y, dtype=torch.long).squeeze(),
-)
-train_dataset, val_dataset = random_split(
-    dataset, [int(0.9 * len(dataset)), len(dataset) - int(0.9 * len(dataset))]
-)
-test_dataset = TensorDataset(
-    torch.tensor(x_test, dtype=torch.float).squeeze(),
-    torch.tensor(y_test, dtype=torch.long).squeeze(),
-)
+# dataset = TensorDataset(
+#     torch.tensor(x, dtype=torch.float).squeeze(),
+#     torch.tensor(y, dtype=torch.long).squeeze(),
+# )
+# train_dataset, val_dataset = random_split(
+#     dataset, [int(0.9 * len(dataset)), len(dataset) - int(0.9 * len(dataset))]
+# )
+# test_dataset = TensorDataset(
+#     torch.tensor(x_test, dtype=torch.float).squeeze(),
+#     torch.tensor(y_test, dtype=torch.long).squeeze(),
+# )
 
-train_loader = DataLoader(train_dataset, batch_size=32)
-val_loader = DataLoader(val_dataset, batch_size=64)
-test_loader = DataLoader(test_dataset, batch_size=64)
-vCNN = vanillaCNN(cnn_channels, kernel_size, cnn_channels[-1] * cnn_out_shape, 5)
-trainer = pl.Trainer(
-    gpus=1, max_epochs=15, callbacks=[EarlyStopping(monitor="val_loss", mode="min")]
-)
-trainer.fit(model=vCNN, train_dataloaders=train_loader, val_dataloaders=val_loader)
+# train_loader = DataLoader(train_dataset, batch_size=32)
+# val_loader = DataLoader(val_dataset, batch_size=64)
+# test_loader = DataLoader(test_dataset, batch_size=64)
+# vCNN = vanillaCNN(cnn_channels, kernel_size, cnn_channels[-1] * cnn_out_shape, 5)
+# trainer = pl.Trainer(
+#     gpus=1, max_epochs=15, callbacks=[EarlyStopping(monitor="val_loss", mode="min")]
+# )
+# trainer.fit(model=vCNN, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
-test_preds = get_predictions(vCNN, test_loader, trainer)
-# print("preds: ", test_preds.shape, type(test_preds))
-# print(test_preds)
-# print(np.argmax(test_preds, axis=-1).shape)
-print("Vanilla CNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)))
+# test_preds = get_predictions(vCNN, test_loader, trainer)
+# # print("preds: ", test_preds.shape, type(test_preds))
+# # print(test_preds)
+# # print(np.argmax(test_preds, axis=-1).shape)
+# print("Vanilla CNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)))
 
 
-# train_mitbih_baseline(x, y)
-baseline_mitbih_preds = test_mitbih_baseline(x_test, y_test)
+# # train_mitbih_baseline(x, y)
+# baseline_mitbih_preds = test_mitbih_baseline(x_test, y_test)
 
 
 # ##PTBDB DATASET
@@ -98,7 +98,7 @@ trainer.fit(
 )
 
 test_preds = get_predictions(vCNN_PTBDB, test_loader, trainer)
-print("Vanilla CNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)))
+print("Vanilla CNN acc: ", accuracy_score(y_test, np.round(test_preds)))
 print("ROC AUC vanilla CNN: ", roc_auc_score(y_test, test_preds))
 
 # # train_PTBDB_baseline(x, y)

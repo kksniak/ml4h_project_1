@@ -63,7 +63,8 @@ class vanillaCNN(pl.LightningModule):
 
         if self.no_classes == 2:
             y_hat = y_hat.squeeze()
-            val_loss = F.binary_cross_entropy(torch.sigmoid(y_hat), y)
+            y_hat = torch.sigmoid(y_hat)
+            val_loss = F.binary_cross_entropy(y_hat, y)
         else:
             val_loss = F.cross_entropy(y_hat, y)
 
@@ -74,6 +75,8 @@ class vanillaCNN(pl.LightningModule):
     def predict_step(self, batch, batch_idx):
         x, y = batch
         pred = self.forward(x)
+        if self.no_classes == 2:
+            pred = torch.sigmoid(pred)
         return pred
 
     def configure_optimizers(self):
