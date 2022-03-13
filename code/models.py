@@ -3,6 +3,7 @@ import torch
 from torch import nn
 import pytorch_lightning as pl
 import torch.nn.functional as F
+import torchmetrics
 
 
 class vanillaCNN(pl.LightningModule):
@@ -19,7 +20,15 @@ class vanillaCNN(pl.LightningModule):
             )
             self.net.add_module(f"act{i}", nn.ReLU())
 
-        self.fc = nn.Linear(output_size, no_classes)
+        self.no_classes = no_classes
+
+        if no_classes == 2:
+            self.fc = nn.Linear(output_size, 1)
+
+        else:
+            self.fc = nn.Linear(output_size, no_classes)
+
+        self.accuracy = torchmetrics.Accuracy()
 
     def forward(self, x):
         x.unsqueeze_(1)
@@ -39,8 +48,33 @@ class vanillaCNN(pl.LightningModule):
         dims = output_cnn.shape
         output_cnn = output_cnn.view(-1, dims[1] * dims[2])
         output = self.fc(output_cnn)
-        loss = F.cross_entropy(output, y)
+
+        if self.no_classes == 2:
+            output = output.squeeze()
+            loss = F.binary_cross_entropy(torch.sigmoid(output), y)
+        else:
+            loss = F.cross_entropy(output, y)
+        self.log("train_loss", loss)
         return loss
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self.forward(x)
+
+        if self.no_classes == 2:
+            y_hat = y_hat.squeeze()
+            val_loss = F.binary_cross_entropy(torch.sigmoid(y_hat), y)
+        else:
+            val_loss = F.cross_entropy(y_hat, y)
+
+        self.log("val_loss", val_loss)
+        self.accuracy(y_hat, y.long())
+        self.log("val_acc", self.accuracy)
+
+    def predict_step(self, batch, batch_idx):
+        x, y = batch
+        pred = self.forward(x)
+        return pred
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
