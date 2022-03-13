@@ -2,7 +2,7 @@ from cgi import test
 from gc import callbacks
 import torch
 from utils import CNN_output_shape, get_predictions
-from models import vanillaCNN
+from models import vanillaCNN, vanillaRNN
 from baselines import (
     train_mitbih_baseline,
     test_mitbih_baseline,
@@ -49,9 +49,30 @@ test_dataset = TensorDataset(
     torch.tensor(y_test, dtype=torch.long).squeeze(),
 )
 
-train_loader = DataLoader(train_dataset, batch_size=32)
+
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=64)
 test_loader = DataLoader(test_dataset, batch_size=64)
+
+
+dataset_rnn = TensorDataset(
+    torch.tensor(x, dtype=torch.float), torch.tensor(y, dtype=torch.long).squeeze(),
+)
+train_dataset_rnn, val_dataset_rnn = random_split(
+    dataset_rnn, [int(0.9 * len(dataset)), len(dataset) - int(0.9 * len(dataset))]
+)
+test_dataset_rnn = TensorDataset(
+    torch.tensor(x_test, dtype=torch.float),
+    torch.tensor(y_test, dtype=torch.long).squeeze(),
+)
+
+train_loader = DataLoader(train_dataset_rnn, batch_size=32, shuffle=True)
+val_loader = DataLoader(val_dataset_rnn, batch_size=64)
+test_loader = DataLoader(test_dataset_rnn, batch_size=64)
+
+for x, y in train_loader:
+    print(x.shape)
+    break
 vCNN = vanillaCNN(cnn_channels, kernel_size, cnn_channels[-1] * cnn_out_shape, 5)
 trainer = pl.Trainer(
     gpus=1, max_epochs=15, callbacks=[EarlyStopping(monitor="val_loss", mode="min")]
@@ -61,12 +82,22 @@ trainer.fit(model=vCNN, train_dataloaders=train_loader, val_dataloaders=val_load
 test_preds = get_predictions(vCNN, test_loader, trainer)
 print("Vanilla CNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)))
 
+vRNN = vanillaRNN(256, 5)
+trainerRNN = pl.Trainer(
+    gpus=1,
+    max_epochs=1,
+    callbacks=[EarlyStopping(monitor="val_loss", mode="min")],
+    gradient_clip_val=0.5,
+)
+trainerRNN.fit(model=vRNN, train_dataloaders=train_loader, val_dataloaders=val_loader)
+test_preds = get_predictions(vRNN, test_loader, trainerRNN)
+print("Vanilla RNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)))
 
 # # train_mitbih_baseline(x, y)
 # baseline_mitbih_preds = test_mitbih_baseline(x_test, y_test)
 
 
-# ##PTBDB DATASET
+##PTBDB DATASET
 
 
 x, y, x_test, y_test = load_PTB_dataset()
