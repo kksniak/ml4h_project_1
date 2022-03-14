@@ -10,8 +10,8 @@ from baselines import (
     test_PTBDB_baseline,
 )
 from datasets import load_arythmia_dataset, load_PTB_dataset
-from utils import CNN_output_shape
-from torch.utils.data import DataLoader, TensorDataset, random_split
+from utils import CNN_output_shape, prepare_datasets
+from torch.utils.data import DataLoader
 import numpy as np
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
@@ -37,17 +37,7 @@ for i in range(1, len(cnn_channels)):
 x, y, x_test, y_test = load_arythmia_dataset()
 
 
-dataset = TensorDataset(
-    torch.tensor(x, dtype=torch.float).squeeze(),
-    torch.tensor(y, dtype=torch.long).squeeze(),
-)
-train_dataset, val_dataset = random_split(
-    dataset, [int(0.9 * len(dataset)), len(dataset) - int(0.9 * len(dataset))]
-)
-test_dataset = TensorDataset(
-    torch.tensor(x_test, dtype=torch.float).squeeze(),
-    torch.tensor(y_test, dtype=torch.long).squeeze(),
-)
+train_dataset, val_dataset, test_dataset = prepare_datasets(x, y, x_test, y_test, True)
 
 
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
@@ -65,15 +55,8 @@ test_preds = get_predictions(vCNN, test_loader, trainer)
 print("Vanilla CNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)))
 
 
-dataset_rnn = TensorDataset(
-    torch.tensor(x, dtype=torch.float), torch.tensor(y, dtype=torch.long).squeeze(),
-)
-train_dataset_rnn, val_dataset_rnn = random_split(
-    dataset_rnn, [int(0.9 * len(dataset)), len(dataset) - int(0.9 * len(dataset))]
-)
-test_dataset_rnn = TensorDataset(
-    torch.tensor(x_test, dtype=torch.float),
-    torch.tensor(y_test, dtype=torch.long).squeeze(),
+train_dataset_rnn, val_dataset_rnn, test_dataset_rnn = prepare_datasets(
+    x, y, x_test, y_test, False
 )
 
 train_loader = DataLoader(train_dataset_rnn, batch_size=32, shuffle=True)
@@ -84,7 +67,7 @@ test_loader = DataLoader(test_dataset_rnn, batch_size=64)
 vRNN = vanillaRNN(256, 5)
 trainerRNN = pl.Trainer(
     gpus=-1,
-    max_epochs=1,
+    max_epochs=2,
     callbacks=[EarlyStopping(monitor="val_loss", mode="min")],
     gradient_clip_val=0.5,
 )
@@ -100,16 +83,8 @@ print("Vanilla RNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)
 
 
 x, y, x_test, y_test = load_PTB_dataset()
-dataset = TensorDataset(
-    torch.tensor(x, dtype=torch.float).squeeze(),
-    torch.tensor(y, dtype=torch.float).squeeze(),
-)
-train_dataset, val_dataset = random_split(
-    dataset, [int(0.9 * len(dataset)), len(dataset) - int(0.9 * len(dataset))]
-)
-test_dataset = TensorDataset(
-    torch.tensor(x_test, dtype=torch.float).squeeze(),
-    torch.tensor(y_test, dtype=torch.float).squeeze(),
+train_dataset, val_dataset, test_dataset = prepare_datasets(
+    x, y, x_test, y_test, True, y_dtype=torch.float
 )
 
 train_loader = DataLoader(train_dataset, batch_size=32)
@@ -118,7 +93,7 @@ test_loader = DataLoader(test_dataset, batch_size=64)
 
 vCNN_PTBDB = vanillaCNN(cnn_channels, kernel_size, cnn_channels[-1] * cnn_out_shape, 2)
 trainer = pl.Trainer(
-    gpus=1, max_epochs=15, callbacks=[EarlyStopping(monitor="val_loss", mode="min")]
+    gpus=-1, max_epochs=15, callbacks=[EarlyStopping(monitor="val_loss", mode="min")]
 )
 trainer.fit(
     model=vCNN_PTBDB, train_dataloaders=train_loader, val_dataloaders=val_loader
