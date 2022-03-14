@@ -55,6 +55,16 @@ val_loader = DataLoader(val_dataset, batch_size=64)
 test_loader = DataLoader(test_dataset, batch_size=64)
 
 
+vCNN = vanillaCNN(cnn_channels, kernel_size, cnn_channels[-1] * cnn_out_shape, 5)
+trainer = pl.Trainer(
+    gpus=-1, max_epochs=15, callbacks=[EarlyStopping(monitor="val_loss", mode="min")]
+)
+trainer.fit(model=vCNN, train_dataloaders=train_loader, val_dataloaders=val_loader)
+
+test_preds = get_predictions(vCNN, test_loader, trainer)
+print("Vanilla CNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)))
+
+
 dataset_rnn = TensorDataset(
     torch.tensor(x, dtype=torch.float), torch.tensor(y, dtype=torch.long).squeeze(),
 )
@@ -70,21 +80,10 @@ train_loader = DataLoader(train_dataset_rnn, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset_rnn, batch_size=64)
 test_loader = DataLoader(test_dataset_rnn, batch_size=64)
 
-for x, y in train_loader:
-    print(x.shape)
-    break
-vCNN = vanillaCNN(cnn_channels, kernel_size, cnn_channels[-1] * cnn_out_shape, 5)
-trainer = pl.Trainer(
-    gpus=1, max_epochs=15, callbacks=[EarlyStopping(monitor="val_loss", mode="min")]
-)
-trainer.fit(model=vCNN, train_dataloaders=train_loader, val_dataloaders=val_loader)
-
-test_preds = get_predictions(vCNN, test_loader, trainer)
-print("Vanilla CNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)))
 
 vRNN = vanillaRNN(256, 5)
 trainerRNN = pl.Trainer(
-    gpus=1,
+    gpus=-1,
     max_epochs=1,
     callbacks=[EarlyStopping(monitor="val_loss", mode="min")],
     gradient_clip_val=0.5,
