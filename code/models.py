@@ -7,18 +7,16 @@ import torchmetrics
 
 
 class vanillaCNN(pl.LightningModule):
-
-    def __init__(self, channels: list[int], kernel_size: int, output_size,
-                 no_classes: int) -> None:
+    def __init__(
+        self, channels: list[int], kernel_size: int, output_size, no_classes: int
+    ) -> None:
         super().__init__()
         self.net = nn.Sequential()
 
         for i in range(len(channels) - 1):
             self.net.add_module(
                 f"cnn{i}",
-                nn.Conv1d(channels[i],
-                          channels[i + 1],
-                          kernel_size=kernel_size),
+                nn.Conv1d(channels[i], channels[i + 1], kernel_size=kernel_size),
             )
             self.net.add_module(f"act{i}", nn.ReLU())
 
@@ -87,18 +85,18 @@ class vanillaCNN(pl.LightningModule):
 
 
 class vanillaRNN(pl.LightningModule):
-
-    def __init__(self, no_hidden: int, no_classes: int) -> None:
+    def __init__(self, no_hidden: int, no_classes: int, num_layers: int = 1) -> None:
         super().__init__()
 
-        self.rnn = nn.RNN(input_size=1,
-                          hidden_size=no_hidden,
-                          batch_first=True)
+        self.rnn = nn.RNN(
+            input_size=1, hidden_size=no_hidden, batch_first=True, num_layers=num_layers
+        )
+        self.num_layers = num_layers
         if no_classes == 2:
-            self.fc = nn.Linear(no_hidden, 1)
+            self.fc = nn.Linear(no_hidden * num_layers, 1)
 
         else:
-            self.fc = nn.Linear(no_hidden, no_classes)
+            self.fc = nn.Linear(no_hidden * num_layers, no_classes)
 
         self.no_classes = no_classes
         self.accuracy = torchmetrics.Accuracy()
@@ -106,14 +104,16 @@ class vanillaRNN(pl.LightningModule):
     def forward(self, x):
         # print(x.shape)
         output, hn = self.rnn(x)
-        x = self.fc(hn)
+        D_num, batch_size, hidden_size = hn.shape
+        x = self.fc(hn.view(1, batch_size, hidden_size * self.num_layers))
         return x
 
     def training_step(self, batch, batch_idx):
         x, y = batch
         # print("Batch: ", x.shape)
         output, hn = self.rnn(x)
-        pred = self.fc(hn)
+        D_num, batch_size, hidden_size = hn.shape
+        pred = self.fc(hn.view(1, batch_size, hidden_size * self.num_layers))
         if self.no_classes == 2:
             pred = pred.squeeze()
             loss = F.binary_cross_entropy(torch.sigmoid(pred), y)
@@ -158,18 +158,15 @@ class vanillaRNN(pl.LightningModule):
         # optimizer = torch.optim.SGD(self.parameters(), lr=0.1, momentum=0.9)
         return optimizer
 
-
         # h0 = (torch.autograd.Variable(zeros(1, 64, hidden_size)),
         #       torch.autograd.Variable(zeros(1, 64, hidden_size)))
-class LSTM(pl.LightningModule):
 
-    def __init__(self, hidden_size: int, num_classes: int,
-                 num_layers: int) -> None:
+
+class LSTM(pl.LightningModule):
+    def __init__(self, hidden_size: int, num_classes: int, num_layers: int) -> None:
         super().__init__()
 
-        self.lstm = nn.LSTM(input_size=1,
-                            hidden_size=hidden_size,
-                            batch_first=True)
+        self.lstm = nn.LSTM(input_size=1, hidden_size=hidden_size, batch_first=True)
         self.fc = nn.Linear(hidden_size, num_classes)
         self.hidden_size = hidden_size
 

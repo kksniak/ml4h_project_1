@@ -9,7 +9,7 @@ from baselines import (
     train_PTBDB_baseline,
     test_PTBDB_baseline,
 )
-from datasets import load_arythmia_dataset, load_PTB_dataset
+from datasets import load_PTB_dataset, load_arrhythmia_dataset
 from utils import CNN_output_shape, prepare_datasets
 from torch.utils.data import DataLoader
 import numpy as np
@@ -39,7 +39,7 @@ for i in range(1, len(cnn_channels)):
     cnn_out_shape = CNN_output_shape(cnn_out_shape, 1, kernel_size)
 
 ##Arythmia DATASET
-x, y, x_test, y_test = load_arythmia_dataset()
+x, y, x_test, y_test = load_arrhythmia_dataset()
 
 
 train_dataset, val_dataset, test_dataset = prepare_datasets(x, y, x_test, y_test, True)
@@ -69,7 +69,7 @@ val_loader = DataLoader(val_dataset_rnn, batch_size=64)
 test_loader = DataLoader(test_dataset_rnn, batch_size=64)
 
 
-vRNN = vanillaRNN(1024, 5)
+vRNN = vanillaRNN(1024, 5, num_layers=2)
 trainerRNN = pl.Trainer(
     gpus=-1,
     max_epochs=1,
