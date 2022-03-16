@@ -2,7 +2,7 @@ from cgi import test
 from gc import callbacks
 import torch
 from utils import CNN_output_shape, get_predictions
-from models import vanillaCNN, vanillaRNN
+from models import vanillaCNN, vanillaRNN, ResNet
 from baselines import (
     train_mitbih_baseline,
     test_mitbih_baseline,
@@ -49,6 +49,10 @@ train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=64)
 test_loader = DataLoader(test_dataset, batch_size=64)
 
+# for x, y in train_loader:
+#     print("X: ", x.shape)
+#     break
+
 
 vCNN = vanillaCNN(cnn_channels, kernel_size, cnn_channels[-1] * cnn_out_shape, 5)
 trainer = pl.Trainer(
@@ -58,6 +62,15 @@ trainer.fit(model=vCNN, train_dataloaders=train_loader, val_dataloaders=val_load
 
 test_preds = get_predictions(vCNN, test_loader, trainer)
 print("Vanilla CNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)))
+
+
+resnet = ResNet([10, 20, 20, 40], 5)
+trainer = pl.Trainer(
+    gpus=-1, max_epochs=1, callbacks=[EarlyStopping(monitor="val_loss", mode="min")]
+)
+trainer.fit(model=resnet, train_dataloaders=train_loader, val_dataloaders=val_loader)
+test_preds_res = get_predictions(resnet, test_loader, trainer)
+print("ResNet CNN acc: ", accuracy_score(y_test, np.argmax(test_preds, axis=-1)))
 
 
 train_dataset_rnn, val_dataset_rnn, test_dataset_rnn = prepare_datasets(
