@@ -7,7 +7,7 @@ from typing import Tuple
 from sklearn.model_selection import train_test_split
 
 
-def load_arythmia_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
+def load_arrhythmia_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
     data_dir = pathlib.Path(__file__).parents[1].joinpath("data")
     df_train = pd.read_csv(
         pathlib.Path(data_dir).joinpath("mitbih_train.csv"), header=None
