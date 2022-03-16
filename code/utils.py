@@ -26,6 +26,7 @@ def get_predictions(
     preds = trainer.predict(model, data_loader)
     test_preds = []
     for pred in preds:
+        # print(pred.shape)
         test_preds.append(pred.numpy())
 
     test_preds = np.concatenate(test_preds)

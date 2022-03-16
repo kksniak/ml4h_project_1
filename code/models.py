@@ -99,12 +99,14 @@ class vanillaRNN(pl.LightningModule):
         self.accuracy = torchmetrics.Accuracy()
 
     def forward(self, x):
+        # print(x.shape)
         output, hn = self.rnn(x)
         x = self.fc(hn)
         return x
 
     def training_step(self, batch, batch_idx):
         x, y = batch
+        # print("Batch: ", x.shape)
         output, hn = self.rnn(x)
         pred = self.fc(hn)
         if self.no_classes == 2:
@@ -124,7 +126,7 @@ class vanillaRNN(pl.LightningModule):
         y_hat = self.forward(x)
 
         if self.no_classes == 2:
-            # y_hat = y_hat.squeeze()
+            y_hat = y_hat.squeeze()
             y_hat = torch.sigmoid(y_hat)
             val_loss = F.binary_cross_entropy(y_hat, y)
         else:
@@ -142,11 +144,11 @@ class vanillaRNN(pl.LightningModule):
         pred = self.forward(x)
         if self.no_classes == 2:
             pred = torch.sigmoid(pred)
-        else:
-            pred.squeeze_()
+
+        pred.squeeze_()
         return pred
 
     def configure_optimizers(self):
-        # optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        optimizer = torch.optim.SGD(self.parameters(), lr=1e-2, momentum=0.7)
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        # optimizer = torch.optim.SGD(self.parameters(), lr=0.1, momentum=0.9)
         return optimizer
