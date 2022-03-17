@@ -7,7 +7,7 @@ class Attention:
 
 
     @staticmethod
-    def model(input_shape, n_classes, n_encoders = 2, key_dim=8, num_heads=8, feedforward_layers = [64]):
+    def attention_model(input_shape, n_classes, n_encoders = 2, key_dim=8, num_heads=8, feedforward_layers = [64]):
 
         inputs = keras.Input(shape=input_shape)
         x = inputs
@@ -40,7 +40,9 @@ class Attention:
         
         tf.random.set_seed(0)
         n_classes = len(np.unique(y_train))
-        model = Attention.model(x_train.shape[1:], n_classes,  n_encoders = 2, key_dim=8, num_heads=8, feedforward_layers = [64])
+
+        #settings specfifc to arythmia
+        model = Attention.attention_model(x_train.shape[1:], n_classes,  n_encoders = 2, key_dim=8, num_heads=8, feedforward_layers = [64])
 
         model.compile(loss="sparse_categorical_crossentropy", optimizer=keras.optimizers.Adam(learning_rate=0.001),metrics=["acc"])
 
@@ -57,7 +59,9 @@ class Attention:
         
         tf.random.set_seed(0)
         n_classes = len(np.unique(y_train))
-        model = Attention.model(x_train.shape[1:], n_classes,  n_encoders = 2, key_dim=8, num_heads=8, feedforward_layers = [64])
+
+        #settings specfifc to mithib
+        model = Attention.attention_model(x_train.shape[1:], n_classes,  n_encoders = 2, key_dim=8, num_heads=8, feedforward_layers = [64])
 
         model.compile(loss="sparse_categorical_crossentropy", optimizer=keras.optimizers.Adam(learning_rate=0.001),metrics=["acc"])
 
@@ -65,9 +69,7 @@ class Attention:
         redonplat = keras.callbacks.ReduceLROnPlateau(monitor="val_acc", factor=0.5, mode="max", patience=3, verbose=2)
         callbacks = [early_stopping, redonplat]
 
-        model.fit(x_train,y_train,validation_split=0.1,epochs=50,batch_size=64,callbacks=callbacks)
-
-        model.evaluate(x_test, y_test, verbose=1)
+        model.fit(x_train,y_train,validation_split=0.1,epochs=100,batch_size=64,callbacks=callbacks)
 
         return model
 
