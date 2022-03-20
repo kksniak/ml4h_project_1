@@ -3,7 +3,7 @@ from gc import callbacks
 import torch
 from utils import CNN_output_shape, get_predictions
 from models import vanillaCNN, vanillaRNN, ResNet
-from baselines import (
+from models.baselines import (
     train_mitbih_baseline,
     test_mitbih_baseline,
     train_PTBDB_baseline,
@@ -123,6 +123,14 @@ print("Vanilla CNN acc: ", accuracy_score(y_test, np.round(test_preds)))
 print("ROC AUC vanilla CNN: ", roc_auc_score(y_test, test_preds))
 precision, recall, thresholds = precision_recall_curve(y_test, test_preds)
 print("AUPRC vanilla CNN; ", auc(recall, precision))
+
+resnet = ResNet([10, 20, 20, 40], 2)
+trainer = pl.Trainer(
+    gpus=-1, max_epochs=15, callbacks=[EarlyStopping(monitor="val_loss", mode="min")]
+)
+trainer.fit(model=resnet, train_dataloaders=train_loader, val_dataloaders=val_loader)
+test_preds_res = get_predictions(resnet, test_loader, trainer)
+print("ResNet CNN acc: ", accuracy_score(y_test, np.round(test_preds_res)))
 
 train_dataset_rnn, val_dataset_rnn, test_dataset_rnn = prepare_datasets(
     x, y, x_test, y_test, False, torch.float
