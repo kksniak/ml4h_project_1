@@ -89,6 +89,7 @@ class AutoencoderTree:
                                      patience=EARLY_STOPPING_PATIENCE)
                              ])
 
+        print('Generating training features...')
         flat = Flatten()(self.autoencoder.layers[2].output)
         self.featurizer = Model(self.autoencoder.input, flat)
 
