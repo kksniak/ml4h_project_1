@@ -153,57 +153,5 @@ class LSTM(pl.LightningModule):
         pass
 
 
-class ResNet(pl.LightningModule):
-    def __init__(self, channels: list[int], no_classes: int) -> None:
-        super().__init__()
 
-        self.net = ResNet1d(channels, no_classes)
-        self.no_classes = no_classes
-        self.accuracy = torchmetrics.Accuracy()
-
-    def forward(self, x):
-        x.unsqueeze_(1)
-
-        return self.net(x)
-
-    def training_step(self, batch, batch_idx):
-        x, y = batch
-        x.unsqueeze_(1)
-
-        output = self.net(x)
-
-        if self.no_classes == 2:
-            output = output.squeeze()
-            loss = F.binary_cross_entropy(torch.sigmoid(output), y)
-        else:
-            loss = F.cross_entropy(output, y)
-
-        self.log("train_loss", loss)
-        return loss
-
-    def validation_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat = self.forward(x)
-
-        if self.no_classes == 2:
-            y_hat = y_hat.squeeze()
-            y_hat = torch.sigmoid(y_hat)
-            val_loss = F.binary_cross_entropy(y_hat, y)
-        else:
-            val_loss = F.cross_entropy(y_hat, y)
-
-        self.log("val_loss", val_loss)
-        self.accuracy(y_hat, y.long())
-        self.log("val_acc", self.accuracy)
-
-    def predict_step(self, batch, batch_idx):
-        x, y = batch
-        pred = self.forward(x)
-        if self.no_classes == 2:
-            pred = torch.sigmoid(pred)
-        return pred
-
-    def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        return optimizer
 
