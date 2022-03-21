@@ -40,7 +40,6 @@ class BasicBlock(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         identity = x
-        # print("x: ", x.shape)
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
@@ -87,7 +86,6 @@ class ResNet1d(nn.Module):
         x = self.max_pool(x)
         x = self.block2(x)
         x = self.block3(x)
-        # print("CNN out: ", x.shape)
         dims = x.shape
         x = self.fc(x.view(dims[0], dims[1] * dims[2]))
 
@@ -196,8 +194,7 @@ class ResNetTransferLearning(pl.LightningModule):
         super().__init__()
 
         self.net = pretrained_model.net
-        # print("Net: ", self.net)
-        # print("weight: ", self.net.fc.weight, self.net.fc.weight.shape)
+
         _, input_shape = self.net.fc.weight.shape
 
         self.net.fc = nn.Linear(input_shape, 1)
@@ -265,5 +262,5 @@ def perform_transfer_learning(max_epochs: int = 15):
     )
     trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
-    return model, trainer, test_loader, y_test
+    return model, trainer
 

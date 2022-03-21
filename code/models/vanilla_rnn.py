@@ -29,7 +29,6 @@ class vanillaRNN(pl.LightningModule):
         self.accuracy = torchmetrics.Accuracy()
 
     def forward(self, x):
-        # print(x.shape)
         output, hn = self.rnn(x)
         D_num, batch_size, hidden_size = hn.shape
         x = self.fc(hn.view(1, batch_size, hidden_size * self.num_layers))
@@ -37,7 +36,6 @@ class vanillaRNN(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         x, y = batch
-        # print("Batch: ", x.shape)
         output, hn = self.rnn(x)
         D_num, batch_size, hidden_size = hn.shape
         pred = self.fc(hn.view(1, batch_size, hidden_size * self.num_layers))
@@ -46,7 +44,6 @@ class vanillaRNN(pl.LightningModule):
             loss = F.binary_cross_entropy(torch.sigmoid(pred), y)
         else:
             pred.squeeze_(0)
-            # print("pred size train: ", pred.shape)
             loss = F.cross_entropy(pred, y)
 
         self.log("train_loss", loss)
@@ -54,7 +51,7 @@ class vanillaRNN(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
-        # print("X ", x.shape)
+
         y_hat = self.forward(x)
 
         if self.no_classes == 2:
@@ -63,7 +60,6 @@ class vanillaRNN(pl.LightningModule):
             val_loss = F.binary_cross_entropy(y_hat, y)
         else:
             y_hat.squeeze_(0)
-            # print("pred size vale: ", y_hat.shape)
 
             val_loss = F.cross_entropy(y_hat, y)
 
