@@ -11,7 +11,7 @@ from datasets import load_arrhythmia_dataset, load_PTB_dataset
 from utils import upsample, get_debug_data
 
 DEBUG = False
-UPSAMPLE = True
+UPSAMPLE = False
 VALIDATION_SPLIT = 0.1
 BATCH_SIZE = 128
 EPOCHS = 3
@@ -23,7 +23,9 @@ SEED = 1337
 class AutoencoderTree:
     """Autoencoder featurization model combined with tree model"""
 
-    def __init__(self, dataset: Literal['mit', 'ptb']):
+    def __init__(self, dataset: Literal['mit', 'ptb'], train_ae_on: Literal['full', 'same']):
+        self.train_ae_on = train_ae_on
+
         self.init_autoencoder()
         self.load_data(dataset)
         self.clf = ExtraTreesClassifier(n_estimators=100)
@@ -49,15 +51,21 @@ class AutoencoderTree:
                                  optimizer=Adam(0.001),
                                  metrics=['mse'])
 
+    def _pad(self, X):
+        return np.append(X, np.zeros((X.shape[0], 1, 1)), axis=1)
+
+
     def load_data(self, dataset):
+        X_mit, y_mit, X_test_mit, y_test_mit = load_arrhythmia_dataset()
+        X_ptb, y_ptb, X_test_ptb, y_test_ptb = load_PTB_dataset()
         if dataset == 'mit':
-            X, y, X_test, y_test = load_arrhythmia_dataset()
+            X, y, X_test, y_test = X_mit, y_mit, X_test_mit, y_test_mit
         elif dataset == 'ptb':
-            X, y, X_test, y_test = load_PTB_dataset()
+            X, y, X_test, y_test = X_ptb, y_ptb, X_test_ptb, y_test_ptb
         else:
             raise ValueError(dataset, 'is not a valid dataset')
-        X = np.append(X, np.zeros((X.shape[0], 1, 1)), axis=1)
-        X_test = np.append(X_test, np.zeros((X_test.shape[0], 1, 1)), axis=1)
+
+        X, X_test, X_mit, X_ptb = self._pad(X), self._pad(X_test), self._pad(X_mit), self._pad(X_ptb)
         X_train, X_valid, y_train, y_valid = train_test_split(
             X, y, test_size=VALIDATION_SPLIT, stratify=y)
 
@@ -75,19 +83,19 @@ class AutoencoderTree:
         self.X_test = X_test
         self.y_test = y_test
 
+        # The autoencoder does not need labels, so we can use all data
+        self.X_train_full = np.concatenate((X_mit, X_ptb), axis=0)
+        self.y_train_full = np.concatenate((y_mit, y_ptb), axis=0)
+
     def train(self):
         print('Fitting autoencoder...')
-        self.autoencoder.fit(self.X_train,
-                             self.X_train,
+        X_train_ae = self.X_train_full if self.train_ae_on == 'full' else self.X_train
+        self.autoencoder.fit(X_train_ae,
+                             X_train_ae,
                              batch_size=BATCH_SIZE,
-                             validation_data=(self.X_valid, self.X_valid),
                              shuffle=True,
-                             epochs=EPOCHS,
-                             callbacks=[
-                                 tf.keras.callbacks.EarlyStopping(
-                                     monitor='val_loss',
-                                     patience=EARLY_STOPPING_PATIENCE)
-                             ])
+                             epochs=EPOCHS
+        )
 
         print('Generating training features...')
         flat = Flatten()(self.autoencoder.layers[2].output)
@@ -111,7 +119,7 @@ if __name__ == '__main__':
     np.random.seed(SEED)
     tf.random.set_seed(SEED)
 
-    model = AutoencoderTree(dataset='mit')
+    model = AutoencoderTree(dataset='ptb', train_ae_on='full')
     model.train()
     model.predict()
 
