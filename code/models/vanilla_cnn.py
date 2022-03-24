@@ -8,8 +8,10 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import torchmetrics
 from datasets import load_arrhythmia_dataset, load_PTB_dataset
-from utils import prepare_datasets
+from utils import get_predictions, prepare_datasets
 import pathlib
+import numpy as np
+from torch.utils.data import DataLoader, TensorDataset, random_split
 
 
 class vanillaCNN(pl.LightningModule):
@@ -127,3 +129,10 @@ def train_vanilla_cnn(
 
     return model, trainer
 
+
+def get_preds(model, trainer, X: np.ndarray) -> np.ndarray:
+    datset = TensorDataset(torch.tensor(X, dtype=float))
+    loader = DataLoader(dataset=datset)
+    preds = get_predictions(model, loader, trainer)
+
+    return np.array(preds)
