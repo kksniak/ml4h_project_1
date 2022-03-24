@@ -131,7 +131,7 @@ def train_vanilla_cnn(
 
 
 def get_preds(model, trainer, X: np.ndarray) -> np.ndarray:
-    datset = TensorDataset(torch.tensor(X, dtype=float))
+    datset = TensorDataset(torch.tensor(X, dtype=torch.float))
     loader = DataLoader(dataset=datset)
     preds = get_predictions(model, loader, trainer)
 
