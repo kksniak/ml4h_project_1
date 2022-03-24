@@ -105,44 +105,6 @@ class Attention:
                      batch_size=BATCH_SIZE,
                      callbacks=callbacks)
 
-    '''def transfer_learning_method_1(self):
-        self.set_seeds()
-
-        early_stopping = EarlyStopping(patience=EARLY_STOPPING_PATIENCE,
-                                       restore_best_weights=True)
-        redonplat = ReduceLROnPlateau(monitor="val_acc",
-                                      factor=0.5,
-                                      mode="max",
-                                      patience=3,
-                                      verbose=2)
-        callbacks = [early_stopping, redonplat]
-
-        print(
-            'Fitting PTB dataset into pretrained attention model (with freezed layers)...'
-        )
-        pretrained_model = keras.models.load_model(
-            'models/attention_model_checkpoints/arythmia_checkpoint')
-
-        #replace output layer
-        self.clf = keras.Model(
-            inputs=pretrained_model.input,
-            outputs=Dense(2, activation="softmax",
-                          name='dense_3')(pretrained_model.layers[-2].output))
-        
-        # freeze layers (apart from feedforwark network)
-        #for layer in self.clf.layers[:-4]:
-        #    layer.trainable = False
-
-        self.clf.compile(loss="sparse_categorical_crossentropy",
-                         optimizer=Adam(learning_rate=0.001),
-                         metrics=["acc"])
-        self.clf.fit(self.X_train,
-                     self.y_train,
-                     validation_split=VALIDATION_SPLIT,
-                     epochs=EPOCHS,
-                     batch_size=BATCH_SIZE,
-                     callbacks=callbacks)'''
-
     def transfer_learning_method_1(self):
         self.set_seeds()
 
