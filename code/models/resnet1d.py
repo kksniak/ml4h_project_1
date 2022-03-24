@@ -147,7 +147,10 @@ class ResNet(pl.LightningModule):
         self.log("val_acc", self.accuracy)
 
     def predict_step(self, batch, batch_idx):
-        x, y = batch
+        if len(batch) == 1:
+            x = batch[0]
+        else:
+            x, y = batch
         pred = self.forward(x)
         if self.no_classes == 2:
             pred = torch.sigmoid(pred)
@@ -231,7 +234,10 @@ class ResNetTransferLearning(pl.LightningModule):
         self.log("val_acc", self.accuracy)
 
     def predict_step(self, batch, batch_idx):
-        x, y = batch
+        if len(batch) == 1:
+            x = batch[0]
+        else:
+            x, y = batch
         pred = self.forward(x)
         pred = torch.sigmoid(pred)
 

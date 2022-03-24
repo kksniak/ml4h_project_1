@@ -81,7 +81,11 @@ class vanillaCNN(pl.LightningModule):
         self.log("val_acc", self.accuracy)
 
     def predict_step(self, batch, batch_idx):
-        x, y = batch
+
+        if len(batch) == 1:
+            x = batch[0]
+        else:
+            x, y = batch
         pred = self.forward(x)
         if self.no_classes == 2:
             pred = torch.sigmoid(pred)
@@ -128,11 +132,3 @@ def train_vanilla_cnn(
     trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
     return model, trainer
-
-
-def get_preds(model, trainer, X: np.ndarray) -> np.ndarray:
-    datset = TensorDataset(torch.tensor(X, dtype=torch.float))
-    loader = DataLoader(dataset=datset)
-    preds = get_predictions(model, loader, trainer)
-
-    return np.array(preds)
