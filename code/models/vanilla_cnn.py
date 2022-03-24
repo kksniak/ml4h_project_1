@@ -132,3 +132,14 @@ def train_vanilla_cnn(
     trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
     return model, trainer
+
+
+def get_cnn_outputs(model: vanillaCNN, X: np.ndarray) -> np.ndarray:
+    datset = TensorDataset(torch.tensor(X, dtype=torch.float).squeeze())
+    loader = DataLoader(dataset=datset, batch_size=64)
+    outputs = []
+    for x in loader:
+        outputs.append(torch.flatten(model.net(x[0].unsqueeze(1)), start_dim=1))
+
+    cnn_output = torch.cat(outputs, 0)
+    return cnn_output.detach().numpy()

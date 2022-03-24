@@ -32,19 +32,21 @@ def get_predictions(
     preds = trainer.predict(model, data_loader)
     test_preds = []
     for pred in preds:
-        # print(pred.shape)
+
         test_preds.append(pred.numpy())
 
     test_preds = np.concatenate(test_preds)
-    # print(test_preds.shape)
+
     return test_preds
 
 
-def get_preds_from_numpy(model, trainer, X: np.ndarray, softmax=True) -> np.ndarray:
+def get_preds_from_numpy(
+    model: pl.LightningModule, trainer: pl.Trainer, X: np.ndarray, softmax=True
+) -> np.ndarray:
     datset = TensorDataset(torch.tensor(X, dtype=torch.float).squeeze())
     loader = DataLoader(dataset=datset, batch_size=64)
     preds = get_predictions(model, loader, trainer)
-    print(preds.shape)
+
     if softmax:
         if preds.shape[1] == 1:
             torch.sigmoid(torch.tensor(preds))
