@@ -95,6 +95,7 @@ def evaluate_multiclass(y_true: np.ndarray, y_pred: np.ndarray):
 
     return metrics, figures
 
+
 def get_heatmap(data):
     fig, ax = plt.subplots(facecolor='white')
 
@@ -122,6 +123,10 @@ def evaluate(model_name: str, y_pred_probas: np.ndarray, y_true: np.ndarray,
     """
 
     n_classes = y_pred_probas.shape[1]
+
+    # Converts [0.1, 0.2] -> [[0.9, 0.1], [0.8, 0.2]]
+    if n_classes == 1:
+        y_pred_probas = np.array([[1 - v, v] for v in y_pred_probas])
 
     # Probabilities -> class predictions
     y_pred = np.argmax(y_pred_probas, axis=1)
