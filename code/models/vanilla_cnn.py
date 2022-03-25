@@ -8,8 +8,10 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import torchmetrics
 from datasets import load_arrhythmia_dataset, load_PTB_dataset
-from utils import prepare_datasets
+from utils import get_predictions, prepare_datasets
 import pathlib
+import numpy as np
+from torch.utils.data import DataLoader, TensorDataset, random_split
 
 
 class vanillaCNN(pl.LightningModule):
@@ -79,7 +81,11 @@ class vanillaCNN(pl.LightningModule):
         self.log("val_acc", self.accuracy)
 
     def predict_step(self, batch, batch_idx):
-        x, y = batch
+
+        if len(batch) == 1:
+            x = batch[0]
+        else:
+            x, y = batch
         pred = self.forward(x)
         if self.no_classes == 2:
             pred = torch.sigmoid(pred)
@@ -127,3 +133,13 @@ def train_vanilla_cnn(
 
     return model, trainer
 
+
+def get_cnn_outputs(model: vanillaCNN, X: np.ndarray) -> np.ndarray:
+    datset = TensorDataset(torch.tensor(X, dtype=torch.float).squeeze())
+    loader = DataLoader(dataset=datset, batch_size=64)
+    outputs = []
+    for x in loader:
+        outputs.append(torch.flatten(model.net(x[0].unsqueeze(1)), start_dim=1))
+
+    cnn_output = torch.cat(outputs, 0)
+    return cnn_output.detach().numpy()

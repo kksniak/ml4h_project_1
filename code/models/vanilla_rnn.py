@@ -68,7 +68,14 @@ class vanillaRNN(pl.LightningModule):
         self.log("val_acc", self.accuracy)
 
     def predict_step(self, batch, batch_idx):
-        x, y = batch
+        if len(batch) == 1:
+            x = batch[0]
+        else:
+            x, y = batch
+        # print("Pred: ", x.shape)
+        if len(x.shape) < 3:
+            x.unsqueeze_(2)
+
         pred = self.forward(x)
         if self.no_classes == 2:
             pred = torch.sigmoid(pred)
