@@ -23,7 +23,7 @@ SEED = 1337
 class AutoencoderTree:
     """Autoencoder featurization model combined with tree model"""
 
-    def __init__(self, dataset: Literal['mit', 'ptb'],
+    def __init__(self, dataset: Literal['mithb', 'ptbdb'],
                  train_ae_on: Literal['full', 'same']):
         self.train_ae_on = train_ae_on
 
@@ -58,9 +58,9 @@ class AutoencoderTree:
     def load_data(self, dataset):
         X_mit, y_mit, X_test_mit, y_test_mit = load_arrhythmia_dataset()
         X_ptb, y_ptb, X_test_ptb, y_test_ptb = load_PTB_dataset()
-        if dataset == 'mit':
+        if dataset == 'mithb':
             X, y, X_test, y_test = X_mit, y_mit, X_test_mit, y_test_mit
-        elif dataset == 'ptb':
+        elif dataset == 'ptbdb':
             X, y, X_test, y_test = X_ptb, y_ptb, X_test_ptb, y_test_ptb
         else:
             raise ValueError(dataset, 'is not a valid dataset')
@@ -116,17 +116,16 @@ if __name__ == '__main__':
     from sklearn.metrics import confusion_matrix, accuracy_score
     import seaborn as sn
     import matplotlib.pyplot as plt
+    from evaluation import evaluate
 
     np.random.seed(SEED)
     tf.random.set_seed(SEED)
 
-    model = AutoencoderTree(dataset='ptb', train_ae_on='full')
+    model = AutoencoderTree(dataset='ptbdb', train_ae_on='full')
     model.train()
     model.predict()
 
-    cm = confusion_matrix(model.y_test, model.y_pred)
-    sn.heatmap(cm, annot=True, fmt='g')
-    plt.show()
-
-    accuracy = accuracy_score(model.y_test, model.y_pred)
-    print('Accuracy:', accuracy)
+    evaluate('AutoencoderTree',
+             model.y_pred_proba,
+             model.y_test,
+             save_results=False)
