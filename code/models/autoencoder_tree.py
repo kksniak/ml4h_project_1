@@ -23,7 +23,8 @@ SEED = 1337
 class AutoencoderTree:
     """Autoencoder featurization model combined with tree model"""
 
-    def __init__(self, dataset: Literal['mit', 'ptb'], train_ae_on: Literal['full', 'same']):
+    def __init__(self, dataset: Literal['mit', 'ptb'],
+                 train_ae_on: Literal['full', 'same']):
         self.train_ae_on = train_ae_on
 
         self.init_autoencoder()
@@ -54,7 +55,6 @@ class AutoencoderTree:
     def _pad(self, X):
         return np.append(X, np.zeros((X.shape[0], 1, 1)), axis=1)
 
-
     def load_data(self, dataset):
         X_mit, y_mit, X_test_mit, y_test_mit = load_arrhythmia_dataset()
         X_ptb, y_ptb, X_test_ptb, y_test_ptb = load_PTB_dataset()
@@ -65,7 +65,8 @@ class AutoencoderTree:
         else:
             raise ValueError(dataset, 'is not a valid dataset')
 
-        X, X_test, X_mit, X_ptb = self._pad(X), self._pad(X_test), self._pad(X_mit), self._pad(X_ptb)
+        X, X_test, X_mit, X_ptb = self._pad(X), self._pad(X_test), self._pad(
+            X_mit), self._pad(X_ptb)
         X_train, X_valid, y_train, y_valid = train_test_split(
             X, y, test_size=VALIDATION_SPLIT, stratify=y)
 
@@ -94,8 +95,7 @@ class AutoencoderTree:
                              X_train_ae,
                              batch_size=BATCH_SIZE,
                              shuffle=True,
-                             epochs=EPOCHS
-        )
+                             epochs=EPOCHS)
 
         print('Generating training features...')
         flat = Flatten()(self.autoencoder.layers[2].output)
@@ -109,6 +109,7 @@ class AutoencoderTree:
     def predict(self):
         X_test = self.featurizer.predict(self.X_test)
         self.y_pred = self.clf.predict(X_test)
+        self.y_pred_proba = self.clf.predict_proba(X_test)
 
 
 if __name__ == '__main__':
