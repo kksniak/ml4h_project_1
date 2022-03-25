@@ -47,18 +47,24 @@ class Ensemble:
         if 'autoencoder' in models.keys():
             self.autoencoder_tree_model = models['autoencoder']
         else:
-            self.autoencoder_tree_model = AutoencoderTree(dataset=self.dataset, train_ae_on='full')
+            self.autoencoder_tree_model = AutoencoderTree(dataset=self.dataset,
+                                                          train_ae_on='full')
             self.autoencoder_tree_model.train()
 
         if 'cnn' in models.keys():
             self.vanilla_cnn_model, self.vanilla_cnn_trainer = models['cnn']
         else:
-            self.vanilla_cnn_model, self.vanilla_cnn_trainer = train_vanilla_cnn(channels = [1, 20, 20, 40], kernel_size = 10,cnn_output_size = 160, dataset = self.dataset)
-        
+            self.vanilla_cnn_model, self.vanilla_cnn_trainer = train_vanilla_cnn(
+                channels=[1, 20, 20, 40],
+                kernel_size=10,
+                cnn_output_size=160,
+                dataset=self.dataset)
+
         if 'resnet' in models.keys():
             self.resnet_model, self.resnet_trainer = models['resnet']
         else:
-            self.resnet_model, self.resnet_trainer = train_resnet([10, 20, 20, 40], dataset = self.dataset, max_epochs = 15)
+            self.resnet_model, self.resnet_trainer = train_resnet(
+                [10, 20, 20, 40], dataset=self.dataset, max_epochs=15)
 
     def probabilities(self, X):
         X_probs = np.concatenate(
@@ -66,8 +72,9 @@ class Ensemble:
              self.autoencoder_tree_model.clf.predict_proba(
                  (self.autoencoder_tree_model.featurizer.predict(
                      self.autoencoder_tree_model._pad(X)))),
-                get_preds_from_numpy(self.vanilla_cnn_model, self.vanilla_cnn_trainer, X),
-                get_preds_from_numpy(self.resnet_model, self.resnet_trainer, X)),
+             get_preds_from_numpy(self.vanilla_cnn_model,
+                                  self.vanilla_cnn_trainer, X),
+             get_preds_from_numpy(self.resnet_model, self.resnet_trainer, X)),
             axis=1)
         print('X_probs_shape', X_probs.shape)
         return X_probs
@@ -82,8 +89,9 @@ class Ensemble:
             (attention_model_features.predict(X),
              self.autoencoder_tree_model.featurizer.predict(
                  self.autoencoder_tree_model._pad(X)),
-                 get_cnn_outputs(self.vanilla_cnn_model,X),
-                 get_preds_from_numpy(self.resnet_model, self.resnet_trainer, X, softmax = False)),
+             get_cnn_outputs(self.vanilla_cnn_model, X),
+             get_preds_from_numpy(
+                 self.resnet_model, self.resnet_trainer, X, softmax=False)),
             axis=1)
         print('X_probs_feats', X_feats.shape)
         return X_feats
@@ -132,7 +140,7 @@ if __name__ == '__main__':
     from sklearn.metrics import confusion_matrix, accuracy_score
 
     model = Ensemble(dataset='ptbdb', method='probs')
-    
+
     model.train()
     model.predict()
     cm = confusion_matrix(model.y_test, model.y_pred)
