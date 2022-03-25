@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
 
 from datasets import load_arrhythmia_dataset, load_PTB_dataset
-from utils import upsample, get_debug_data
+from utils import upsample, get_debug_data, set_seeds
 
 DEBUG = False
 UPSAMPLE = False
@@ -25,6 +25,7 @@ class AutoencoderTree:
 
     def __init__(self, dataset: Literal['mithb', 'ptbdb'],
                  train_ae_on: Literal['full', 'same']):
+        set_seeds(SEED)
         self.train_ae_on = train_ae_on
 
         self.init_autoencoder()
@@ -118,14 +119,11 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from evaluation import evaluate
 
-    np.random.seed(SEED)
-    tf.random.set_seed(SEED)
-
-    model = AutoencoderTree(dataset='ptbdb', train_ae_on='full')
+    model = AutoencoderTree(dataset='mithb', train_ae_on='full')
     model.train()
     model.predict()
 
     evaluate('AutoencoderTree',
              model.y_pred_proba,
              model.y_test,
-             save_results=False)
+             save_results=True)

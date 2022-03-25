@@ -10,6 +10,10 @@ import tensorflow as tf
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 import seaborn as sn
 import torch.nn.functional as F
+import os
+import tensorflow as tf
+import random
+import torch
 
 
 def CNN_output_shape(
@@ -19,16 +23,14 @@ def CNN_output_shape(
     padding: int = 0,
     stride: int = 1,
 ) -> int:
-    output = int(
-        ((input_size + 2 * padding - (dilation * (kernel_size - 1)) - 1) / stride) + 1
-    )
+    output = int(((input_size + 2 * padding -
+                   (dilation * (kernel_size - 1)) - 1) / stride) + 1)
 
     return output
 
 
-def get_predictions(
-    model: pl.LightningModule, data_loader: DataLoader, trainer: pl.Trainer
-) -> np.ndarray:
+def get_predictions(model: pl.LightningModule, data_loader: DataLoader,
+                    trainer: pl.Trainer) -> np.ndarray:
     preds = trainer.predict(model, data_loader)
     test_preds = []
     for pred in preds:
@@ -40,9 +42,10 @@ def get_predictions(
     return test_preds
 
 
-def get_preds_from_numpy(
-    model: pl.LightningModule, trainer: pl.Trainer, X: np.ndarray, softmax=True
-) -> np.ndarray:
+def get_preds_from_numpy(model: pl.LightningModule,
+                         trainer: pl.Trainer,
+                         X: np.ndarray,
+                         softmax=True) -> np.ndarray:
     datset = TensorDataset(torch.tensor(X, dtype=torch.float).squeeze())
     loader = DataLoader(dataset=datset, batch_size=64)
     preds = get_predictions(model, loader, trainer)
@@ -85,8 +88,9 @@ def prepare_datasets(
         )
 
     train_dataset, val_dataset = random_split(
-        dataset, [int(0.9 * len(dataset)), len(dataset) - int(0.9 * len(dataset))]
-    )
+        dataset,
+        [int(0.9 * len(dataset)),
+         len(dataset) - int(0.9 * len(dataset))])
 
     return train_dataset, val_dataset, test_dataset
 
@@ -159,12 +163,10 @@ def get_debug_data(
     return X_train, y_train, X_valid, y_valid, X_test, y_test
 
 
-def evaluate_model(model: tf.keras.Model, X_test: np.array, y_test: np.array) -> None:
-    y_pred = model.predict(X_test)
-    y_pred = np.argmax(y_pred, axis=-1)
-
-    print("f1 score:", f1_score(y_test, y_pred, average="macro"))
-    print("test accuracy:", accuracy_score(y_test, y_pred))
-
-    cm = confusion_matrix(y_test, y_pred)
-    sn.heatmap(cm, annot=True)
+def set_seeds(seed):
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    tf.random.set_seed(seed)
+    tf.keras.initializers.glorot_normal(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.manual_seed(seed)
