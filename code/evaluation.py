@@ -22,7 +22,7 @@ def write_results(model_name: str, metrics: dict, figures: dict) -> None:
             f.write(key + ': ' + str(value) + '\n')
         f.close()
     for name, fig in figures.items():
-        fig.savefig(f'{directory}/{name}')
+        fig.savefig(f'{directory}/{name}', dpi=150)
 
 
 def get_plot(x: list, y: list, xlabel: str, ylabel: str,
@@ -95,6 +95,18 @@ def evaluate_multiclass(y_true: np.ndarray, y_pred: np.ndarray):
 
     return metrics, figures
 
+def get_heatmap(data):
+    fig, ax = plt.subplots(facecolor='white')
+
+    cm_heatmap = sn.heatmap(data, annot=True, fmt='g', cmap='Greens', ax=ax)
+    cm_heatmap.set(
+        xlabel='Predicted class',
+        ylabel='True class',
+        title='Confusion matrix',
+    )
+
+    return fig
+
 
 def evaluate(model_name: str, y_pred_probas: np.ndarray, y_true: np.ndarray,
              save_results: bool) -> None:
@@ -114,15 +126,13 @@ def evaluate(model_name: str, y_pred_probas: np.ndarray, y_true: np.ndarray,
     # Probabilities -> class predictions
     y_pred = np.argmax(y_pred_probas, axis=1)
 
-    cm = confusion_matrix(y_true, y_pred, normalize='true')
-    cm = np.around(cm, 3)
-    cm_heatmap = sn.heatmap(cm, annot=True, fmt='g')
-    cm_heatmap.set(
-        xlabel='Predicted class',
-        ylabel='True class',
-        title='Confusion matrix',
-    )
-    cm_heatmap = cm_heatmap.get_figure()
+    cm_norm = confusion_matrix(y_true, y_pred, normalize='true')
+    cm_norm = np.around(cm_norm, 3)
+    cm = confusion_matrix(y_true, y_pred)
+
+    cm_heatmap = get_heatmap(cm)
+    cm_heatmap_norm = get_heatmap(cm_norm)
+
     acc = accuracy_score(y_true, y_pred)
 
     if n_classes == 2:
@@ -132,6 +142,7 @@ def evaluate(model_name: str, y_pred_probas: np.ndarray, y_true: np.ndarray,
 
     metrics['Accuracy'] = acc
     figures['confusion_matrix'] = cm_heatmap
+    figures['confusion_matrix_norm'] = cm_heatmap_norm
 
     if save_results:
         write_results(model_name, metrics, figures)
