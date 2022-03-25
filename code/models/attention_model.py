@@ -20,7 +20,7 @@ from utils import upsample
 VALIDATION_SPLIT = 0.1
 BATCH_SIZE = 64
 UPSAMPLE = False
-EPOCHS = 1
+EPOCHS = 50
 EARLY_STOPPING_PATIENCE = 5
 SEED = 2137
 
@@ -28,7 +28,7 @@ SEED = 2137
 class Attention:
     """Attention model"""
 
-    def __init__(self, dataset: Literal['mit', 'ptb']):
+    def __init__(self, dataset: Literal['mithb', 'ptbdb']):
         self.dataset = dataset
         self.load_data(dataset)
 
@@ -177,7 +177,7 @@ class Attention:
                      batch_size=BATCH_SIZE,
                      callbacks=callbacks)
 
-    def load_model(self, dataset: Literal['mit', 'ptb']):
+    def load_model(self, dataset: Literal['mithb', 'ptbdb']):
         if dataset == 'mit':
             self.clf = keras.models.load_model(
                 'models/attention_model_checkpoints/arythmia_checkpoint')
@@ -189,9 +189,9 @@ class Attention:
         self.y_pred = self.clf.predict(self.X_test)
 
     def load_data(self, dataset):
-        if dataset == 'mit':
+        if dataset == 'mithb':
             X_train, y_train, X_test, y_test = load_arrhythmia_dataset()
-        elif dataset == 'ptb':
+        elif dataset == 'ptbdb':
             X_train, y_train, X_test, y_test = load_PTB_dataset()
         else:
             raise ValueError(dataset, 'is not a valid dataset')
@@ -215,7 +215,7 @@ class Attention:
 if __name__ == '__main__':
     from sklearn.metrics import confusion_matrix, accuracy_score
 
-    base_model = Attention(dataset='ptb')
+    base_model = Attention(dataset='ptbdb')
     base_model.train(load_model=True)
     base_model.predict()
     cm = confusion_matrix(base_model.y_test, np.argmax(base_model.y_pred, axis=1))
@@ -223,7 +223,7 @@ if __name__ == '__main__':
     accuracy = accuracy_score(base_model.y_test, np.argmax(base_model.y_pred, axis=1))
     print('Accuracy:', accuracy)
 
-    transfer_model = Attention(dataset='ptb')
+    transfer_model = Attention(dataset='ptbdb')
     transfer_model.transfer_learning_method_1()
     transfer_model.predict()
     cm = confusion_matrix(transfer_model.y_test, np.argmax(transfer_model.y_pred, axis=1))
@@ -231,7 +231,7 @@ if __name__ == '__main__':
     accuracy = accuracy_score(transfer_model.y_test, np.argmax(transfer_model.y_pred, axis=1))
     print('Accuracy:', accuracy)
 
-    transfer_model_2 = Attention(dataset='ptb')
+    transfer_model_2 = Attention(dataset='ptbdb')
     transfer_model_2.transfer_learning_method_2()
     transfer_model_2.predict()
     cm = confusion_matrix(transfer_model_2.y_test, np.argmax(transfer_model_2.y_pred, axis=1))
