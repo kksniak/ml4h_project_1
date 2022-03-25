@@ -128,7 +128,7 @@ class Attention:
             inputs=pretrained_model.input,
             outputs=Dense(2, activation="softmax",
                           name='dense_3')(pretrained_model.layers[-2].output))
-        
+
         # freeze layers (apart from feedforwark network)
         for layer in self.clf.layers[:-4]:
             layer.trainable = False
@@ -205,7 +205,7 @@ class Attention:
         self.y_test = y_test
 
     def set_seeds(self):
-        os.environ['PYTHONHASHSEED']=str(SEED)
+        os.environ['PYTHONHASHSEED'] = str(SEED)
         tf.random.set_seed(SEED)
         tf.keras.initializers.glorot_normal(SEED)
         np.random.seed(SEED)
@@ -218,23 +218,29 @@ if __name__ == '__main__':
     base_model = Attention(dataset='ptbdb')
     base_model.train(load_model=True)
     base_model.predict()
-    cm = confusion_matrix(base_model.y_test, np.argmax(base_model.y_pred, axis=1))
+    cm = confusion_matrix(base_model.y_test, np.argmax(base_model.y_pred,
+                                                       axis=1))
     print(cm)
-    accuracy = accuracy_score(base_model.y_test, np.argmax(base_model.y_pred, axis=1))
+    accuracy = accuracy_score(base_model.y_test,
+                              np.argmax(base_model.y_pred, axis=1))
     print('Accuracy:', accuracy)
 
     transfer_model = Attention(dataset='ptbdb')
     transfer_model.transfer_learning_method_1()
     transfer_model.predict()
-    cm = confusion_matrix(transfer_model.y_test, np.argmax(transfer_model.y_pred, axis=1))
+    cm = confusion_matrix(transfer_model.y_test,
+                          np.argmax(transfer_model.y_pred, axis=1))
     print(cm)
-    accuracy = accuracy_score(transfer_model.y_test, np.argmax(transfer_model.y_pred, axis=1))
+    accuracy = accuracy_score(transfer_model.y_test,
+                              np.argmax(transfer_model.y_pred, axis=1))
     print('Accuracy:', accuracy)
 
     transfer_model_2 = Attention(dataset='ptbdb')
     transfer_model_2.transfer_learning_method_2()
     transfer_model_2.predict()
-    cm = confusion_matrix(transfer_model_2.y_test, np.argmax(transfer_model_2.y_pred, axis=1))
+    cm = confusion_matrix(transfer_model_2.y_test,
+                          np.argmax(transfer_model_2.y_pred, axis=1))
     print(cm)
-    accuracy = accuracy_score(transfer_model_2.y_test, np.argmax(transfer_model_2.y_pred, axis=1))
+    accuracy = accuracy_score(transfer_model_2.y_test,
+                              np.argmax(transfer_model_2.y_pred, axis=1))
     print('Accuracy:', accuracy)
