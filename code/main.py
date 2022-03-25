@@ -38,7 +38,7 @@ v_cnn_model_mit, v_cnn_trainer_mit = train_vanilla_cnn(
     kernel_size=10,
     cnn_output_size=160,
     dataset="mithb",
-    max_epochs=1,
+    max_epochs=15,
 )
 preds_vcnn_mit = get_preds_from_numpy(v_cnn_model_mit, v_cnn_trainer_mit, x_test_mit)
 evaluate("VanillaCNN-MIT", preds_vcnn_mit, y_test_mit, save_results=True)
@@ -49,7 +49,7 @@ v_cnn_model_ptbdb, v_cnn_trainer_ptbdb = train_vanilla_cnn(
     kernel_size=10,
     cnn_output_size=160,
     dataset="ptbdb",
-    max_epochs=1,
+    max_epochs=15,
 )
 preds_vcnn_ptbdb = get_preds_from_numpy(
     v_cnn_model_ptbdb, v_cnn_trainer_ptbdb, x_test_ptbdb
@@ -59,7 +59,7 @@ evaluate("VanillaCNN-PTB", preds_vcnn_ptbdb, y_test_ptbdb, save_results=True)
 ## Vanilla RNN
 # MIT dataset
 v_rnn_model_mit, v_rnn_trainer_mit = train_vanilla_rnn(
-    no_hidden=512, dataset="mitdb", num_layers=1
+    no_hidden=512, dataset="mithb", num_layers=1
 )
 preds_vrnn_mit = get_preds_from_numpy(v_rnn_model_mit, v_rnn_trainer_mit, x_test_mit)
 evaluate("VanillaRNN-MIT", preds_vrnn_mit, y_test_mit, save_results=True)
@@ -78,7 +78,7 @@ evaluate("VanillaRNN-PTB", preds_vrnn_ptbdb, y_test_ptbdb, save_results=True)
 ## Residual Neural Network
 # MIT dataset
 resnet_model_mit, resnet_trainer_mit = train_resnet(
-    channels=[10, 20, 20, 40], dataset="mithb", max_epochs=1
+    channels=[10, 20, 20, 40], dataset="mithb", max_epochs=15
 )
 preds_resnet_mit = get_preds_from_numpy(
     resnet_model_mit, resnet_trainer_mit, x_test_mit
@@ -87,7 +87,7 @@ evaluate("ResNet-MIT", preds_resnet_mit, y_test_mit, save_results=True)
 
 # PTBDB dataset
 resnet_model_ptbdb, resnet_trainer_ptbdb = train_resnet(
-    channels=[10, 20, 20, 40], dataset="ptbdb", max_epochs=1
+    channels=[10, 20, 20, 40], dataset="ptbdb", max_epochs=15
 )
 preds_resnet_ptbdb = get_preds_from_numpy(
     resnet_model_ptbdb, resnet_trainer_ptbdb, x_test_ptbdb
