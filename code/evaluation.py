@@ -114,8 +114,15 @@ def evaluate(model_name: str, y_pred_probas: np.ndarray, y_true: np.ndarray,
     # Probabilities -> class predictions
     y_pred = np.argmax(y_pred_probas, axis=1)
 
-    cm = confusion_matrix(y_true, y_pred)
-    cm_heatmap = sn.heatmap(cm, annot=True, fmt='g').get_figure()
+    cm = confusion_matrix(y_true, y_pred, normalize='true')
+    cm = np.around(cm, 3)
+    cm_heatmap = sn.heatmap(cm, annot=True, fmt='g')
+    cm_heatmap.set(
+        xlabel='Predicted class',
+        ylabel='True class',
+        title='Confusion matrix',
+    )
+    cm_heatmap = cm_heatmap.get_figure()
     acc = accuracy_score(y_true, y_pred)
 
     if n_classes == 2:
