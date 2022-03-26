@@ -23,14 +23,16 @@ def CNN_output_shape(
     padding: int = 0,
     stride: int = 1,
 ) -> int:
-    output = int(((input_size + 2 * padding -
-                   (dilation * (kernel_size - 1)) - 1) / stride) + 1)
+    output = int(
+        ((input_size + 2 * padding - (dilation * (kernel_size - 1)) - 1) / stride) + 1
+    )
 
     return output
 
 
-def get_predictions(model: pl.LightningModule, data_loader: DataLoader,
-                    trainer: pl.Trainer) -> np.ndarray:
+def get_predictions(
+    model: pl.LightningModule, data_loader: DataLoader, trainer: pl.Trainer
+) -> np.ndarray:
     preds = trainer.predict(model, data_loader)
     test_preds = []
     for pred in preds:
@@ -42,13 +44,15 @@ def get_predictions(model: pl.LightningModule, data_loader: DataLoader,
     return test_preds
 
 
-def get_preds_from_numpy(model: pl.LightningModule,
-                         trainer: pl.Trainer,
-                         X: np.ndarray,
-                         softmax=True) -> np.ndarray:
+def get_preds_from_numpy(
+    model: pl.LightningModule, trainer: pl.Trainer, X: np.ndarray, softmax=True
+) -> np.ndarray:
     datset = TensorDataset(torch.tensor(X, dtype=torch.float).squeeze())
     loader = DataLoader(dataset=datset, batch_size=64)
     preds = get_predictions(model, loader, trainer)
+
+    if len(preds.shape) == 1:
+        preds = np.expand_dims(preds, axis=1)
 
     if softmax:
         if preds.shape[1] == 1:
@@ -88,9 +92,8 @@ def prepare_datasets(
         )
 
     train_dataset, val_dataset = random_split(
-        dataset,
-        [int(0.9 * len(dataset)),
-         len(dataset) - int(0.9 * len(dataset))])
+        dataset, [int(0.9 * len(dataset)), len(dataset) - int(0.9 * len(dataset))]
+    )
 
     return train_dataset, val_dataset, test_dataset
 
@@ -164,7 +167,7 @@ def get_debug_data(
 
 
 def set_seeds(seed):
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
     tf.random.set_seed(seed)
     tf.keras.initializers.glorot_normal(seed)
     np.random.seed(seed)
