@@ -36,16 +36,16 @@ class AutoencoderTree:
         input_shape = (188, 1)
 
         self.autoencoder = Sequential([
-            Conv1D(2,
+            Conv1D(8,
                    FILTER_SIZE,
                    strides=2,
                    activation='relu',
                    padding='same',
                    input_shape=input_shape),
-            Conv1D(4, FILTER_SIZE, strides=2, activation='relu',
+            Conv1D(2, FILTER_SIZE, strides=2, activation='relu',
                    padding='same'),
-            Conv1DTranspose(4, FILTER_SIZE, strides=2, padding='same'),
             Conv1DTranspose(2, FILTER_SIZE, strides=2, padding='same'),
+            Conv1DTranspose(8, FILTER_SIZE, strides=2, padding='same'),
             Conv1DTranspose(1, 1, strides=1, padding='same')
         ])
 
@@ -99,7 +99,7 @@ class AutoencoderTree:
                              epochs=EPOCHS)
 
         print('Generating training features...')
-        flat = Flatten()(self.autoencoder.layers[2].output)
+        flat = Flatten()(self.autoencoder.layers[1].output)
         self.featurizer = Model(self.autoencoder.input, flat)
 
         X_train = self.featurizer.predict(self.X_train)
@@ -126,4 +126,4 @@ if __name__ == '__main__':
     evaluate('AutoencoderTree',
              model.y_pred_proba,
              model.y_test,
-             save_results=True)
+             save_results=False)
