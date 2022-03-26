@@ -1,6 +1,7 @@
 from typing import Literal
 from lightgbm import LGBMClassifier
 from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.feature_selection import VarianceThreshold, SelectKBest, f_classif
 from xgboost import XGBClassifier
 import numpy as np
 from tensorflow import keras
@@ -38,7 +39,7 @@ class Ensemble:
         self.load_data(dataset)
 
     def init_models(self, models: dict = {}):
-
+        
         if "attention" in models.keys():
             self.attention_model = models["attention"]
         else:
@@ -60,7 +61,7 @@ class Ensemble:
                 channels=[1, 20, 20, 40],
                 kernel_size=10,
                 cnn_output_size=160,
-                dataset=self.dataset,
+                dataset=self.dataset
             )
 
         if "resnet" in models.keys():
@@ -117,20 +118,32 @@ class Ensemble:
 
         print("Training individual models...")
         self.init_models(models)
-        X_probs = self.featuriser(self.X_train)
-        print(X_probs.shape)
+        self.X_train = self.featuriser(self.X_train)
+
+        if self.dataset == 'mithb' and self.method == "feats":
+            print("Feature Selection...")
+            self.selector_1 = VarianceThreshold()
+            self.X_train = self.selector_1.fit_transform(self.X_train, self.y_train)
+            self.selector_2 = SelectKBest(f_classif, k = 200)
+            self.X_train = self.selector_2.fit_transform(self.X_train, self.y_train)
+            
+        print(self.X_train.shape)
 
         print("Training ensemble classifier...")
         if self.method == "probs":
             self.clf = ExtraTreesClassifier(n_estimators=100)
         else:
             self.clf = XGBClassifier(seed=SEED, verbosity=1)
-        self.clf.fit(X_probs, self.y_train)
+        self.clf.fit(self.X_train, self.y_train)
 
     def predict(self):
-        X_test = self.featuriser(self.X_test)
-        self.y_pred = self.clf.predict(X_test)
-        self.y_pred_proba = self.clf.predict_proba(X_test)
+        self.X_test = self.featuriser(self.X_test)
+        if self.dataset == 'mithb' and self.method == "feats":
+           self.X_test = self.selector_1.transform(self.X_test)
+           self.X_test = self.selector_2.transform(self.X_test)
+
+        self.y_pred = self.clf.predict(self.X_test)
+        self.y_pred_proba = self.clf.predict_proba(self.X_test)
 
     def load_data(self, dataset):
         if dataset == "mithb":
