@@ -145,8 +145,8 @@ def test_mitbih_baseline(X_test: np.ndarray, Y_test: np.ndarray) -> np.ndarray:
     file_path = "baseline_cnn_mitbih.h5"
     model.load_weights(file_path)
 
-    pred_test = model.predict(X_test)
-    pred_test = np.argmax(pred_test, axis=-1)
+    pred_test_scores = model.predict(X_test)
+    pred_test = np.argmax(pred_test_scores, axis=-1)
 
     f1 = f1_score(Y_test, pred_test, average="macro")
 
@@ -155,7 +155,7 @@ def test_mitbih_baseline(X_test: np.ndarray, Y_test: np.ndarray) -> np.ndarray:
     acc = accuracy_score(Y_test, pred_test)
 
     print("Test accuracy score : %s " % acc)
-    return pred_test
+    return pred_test_scores
 
 
 def train_PTBDB_baseline(X: np.ndarray, Y: np.ndarray) -> None:

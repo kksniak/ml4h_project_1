@@ -27,8 +27,16 @@ x_ptbdb, y_ptbdb, x_test_ptbdb, y_test_ptbdb = load_PTB_dataset()
 
 ### BASELINES
 
-test_mitbih_baseline(x_test_mit, y_test_mit)
-test_PTBDB_baseline(x_test_ptbdb, y_test_ptbdb)
+preds_baseline_mit = test_mitbih_baseline(x_test_mit, y_test_mit)
+evaluate("Baseline-MIT", preds_baseline_mit, y_test_mit, save_results=True)
+
+preds_baseline_ptbdb = test_PTBDB_baseline(x_test_ptbdb, y_test_ptbdb)
+evaluate(
+    "Baseline-PTB",
+    preds_baseline_ptbdb,
+    y_test_ptbdb,
+    save_results=True,
+)
 
 ### TASK 1
 ## Vanilla CNN
@@ -95,7 +103,7 @@ preds_resnet_ptbdb = get_preds_from_numpy(
 evaluate("ResNet-PTB", preds_resnet_ptbdb, y_test_ptbdb, save_results=True)
 
 # Transer learning for ResNet
-resnet_model_transfer, resnet_trainer_transfer = perform_transfer_learning(1)
+resnet_model_transfer, resnet_trainer_transfer = perform_transfer_learning(15)
 preds_resnet_transfer = get_preds_from_numpy(
     resnet_model_transfer, resnet_trainer_transfer, x_test_ptbdb
 )
