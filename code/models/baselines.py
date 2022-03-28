@@ -145,7 +145,7 @@ def get_arythmia_baseline_model() -> models.Model:
 
 def train_mitbih_baseline(X: np.ndarray, Y: np.ndarray) -> None:
     model = get_arythmia_baseline_model()
-    file_path = "baseline_cnn_mitbih.h5"
+    file_path = "code/baseline_cnn_mitbih.h5"
     checkpoint = ModelCheckpoint(file_path,
                                  monitor="val_acc",
                                  verbose=1,
@@ -168,7 +168,7 @@ def train_mitbih_baseline(X: np.ndarray, Y: np.ndarray) -> None:
 
 def test_mitbih_baseline(X_test: np.ndarray, Y_test: np.ndarray) -> np.ndarray:
     model = get_arythmia_baseline_model()
-    file_path = "baseline_cnn_mitbih.h5"
+    file_path = "code/baseline_cnn_mitbih.h5"
     model.load_weights(file_path)
 
     pred_test_scores = model.predict(X_test)
@@ -186,7 +186,7 @@ def test_mitbih_baseline(X_test: np.ndarray, Y_test: np.ndarray) -> np.ndarray:
 
 def train_PTBDB_baseline(X: np.ndarray, Y: np.ndarray) -> None:
     model = get_PTBDB_baseline_model()
-    file_path = "baseline_cnn_ptbdb.h5"
+    file_path = "code/baseline_cnn_ptbdb.h5"
     checkpoint = ModelCheckpoint(file_path,
                                  monitor="val_acc",
                                  verbose=1,
@@ -209,7 +209,7 @@ def train_PTBDB_baseline(X: np.ndarray, Y: np.ndarray) -> None:
 
 def test_PTBDB_baseline(X_test: np.ndarray, Y_test: np.ndarray) -> np.ndarray:
     model = get_PTBDB_baseline_model()
-    file_path = "baseline_cnn_ptbdb.h5"
+    file_path = "code/baseline_cnn_ptbdb.h5"
     model.load_weights(file_path)
 
     pred_test_scores = model.predict(X_test)

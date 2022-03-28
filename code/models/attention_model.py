@@ -152,7 +152,7 @@ class Attention:
             "Fitting PTB dataset into attention model (training whole model)..."
         )
         pretrained_model = keras.models.load_model(
-            "models/attention_model_checkpoints/arythmia_checkpoint")
+            "code/models/attention_model_checkpoints/arythmia_checkpoint")
 
         # replace output layer
         self.clf = keras.Model(
@@ -196,7 +196,7 @@ class Attention:
             "Fitting PTB dataset into attention model (training whole model)..."
         )
         pretrained_model = keras.models.load_model(
-            "models/attention_model_checkpoints/arythmia_checkpoint")
+            "code/models/attention_model_checkpoints/arythmia_checkpoint")
 
         # replace output layer
         self.clf = keras.Model(
@@ -223,10 +223,10 @@ class Attention:
         """Loads pretrained models"""
         if dataset == "mithb":
             self.clf = keras.models.load_model(
-                "models/attention_model_checkpoints/arythmia_checkpoint")
+                "code/models/attention_model_checkpoints/arythmia_checkpoint")
         else:
             self.clf = keras.models.load_model(
-                "models/attention_model_checkpoints/ptb_checkpoint")
+                "code/models/attention_model_checkpoints/ptb_checkpoint")
 
     def predict(self):
         """Generate predictions on test set"""
