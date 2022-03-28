@@ -21,6 +21,34 @@ $ conda activate ml4h
 ### Reproducibility of results
 Run main.py or sth like that
 
+# Repository structure
+
+.
+├── code                                
+│   ├── mock                        # Static mock data
+│   │   └── sample_predictions.py
+│   ├── models                      # Classification models
+│   │   ├── attention_model.py
+│   │   ├── autoencoder_tree.py
+│   │   ├── baselines.py
+│   │   ├── ensemble.py
+│   │   ├── resnet1d.py
+│   │   ├── tree.py
+│   │   ├── vanilla_cnn.py
+│   │   └── vanilla_rnn.py
+│   ├── config.py                   # Config (e.g. GPU)
+│   ├── datasets.py                 # Utils for loading datasets
+│   ├── evaluation.py               # Utils for evaluating model performance
+│   ├── main.py                     # Script for training and evaluating all models
+│   └── utils.py
+├── data                            # Raw data
+├── results                         # Plots and evaluation metrics
+├── .gitignore
+├── .pylintrc                       # Linting config
+├── .style.yapf                     # Formatter config
+├── .environment-m1.yml             # MiniForge environment
+└── .environment.yml                # MiniConda environment
+
 ## Description
 Description of files
 
