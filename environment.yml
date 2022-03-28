@@ -1,0 +1,18 @@
+name: ml4hc-p1
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - cudatoolkit=11.3
+  - torchvision
+  - pytorch
+  - torchaudio
+  - pytorch-lightning
+  - pandas
+  - scikit-learn
+  - black
+  - matplotlib
+  - seaborn
+  - lightgbm
+  - xgboost
+  - cudnn
