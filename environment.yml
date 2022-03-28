@@ -16,4 +16,3 @@ dependencies:
   - lightgbm
   - xgboost
   - cudnn
-prefix: /home/bartek/miniconda3/envs/ml4hc-p1
