@@ -5,10 +5,36 @@ import numpy as np
 import pathlib
 from typing import Tuple
 from sklearn.model_selection import train_test_split
+from sklearn.utils import resample
 
 
-def load_arrhythmia_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
+def get_subset(X, Y, X_test, Y_test, n_samples):
+    X, Y = resample(
+        X,
+        Y,
+        replace=False,
+        n_samples=n_samples,
+        stratify=Y,
+    )
+    X_test, Y_test = resample(
+        X_test,
+        Y_test,
+        replace=False,
+        n_samples=n_samples,
+        stratify=Y_test,
+    )
+
+    return X, Y, X_test, Y_test
+
+
+def load_arrhythmia_dataset(
+        n_samples=-1) -> Tuple[np.array, np.array, np.array, np.array]:
     """Loads MIT dataset as specified in the assignment
+
+    Args:
+        n_samples: Optional argument specifying the size of a random
+            stratified subset to be loaded. Used for debugging
+            purposes.
 
     Returns:
         Loaded dataset as numpy arrays
@@ -26,10 +52,14 @@ def load_arrhythmia_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
     Y_test = np.array(df_test[187].values).astype(np.int8)
     X_test = np.array(df_test[list(range(187))].values)[..., np.newaxis]
 
+    if n_samples > 0:
+        X, Y, X_test, Y_test = get_subset(X, Y, X_test, Y_test, n_samples)
+
     return X, Y, X_test, Y_test
 
 
-def load_PTB_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
+def load_PTB_dataset(
+        n_samples=-1) -> Tuple[np.array, np.array, np.array, np.array]:
     """Loads PTB dataset as specified in the assignment
 
     Returns:
@@ -52,5 +82,8 @@ def load_PTB_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
 
     Y_test = np.array(df_test[187].values).astype(np.int8)
     X_test = np.array(df_test[list(range(187))].values)[..., np.newaxis]
+
+    if n_samples > 0:
+        X, Y, X_test, Y_test = get_subset(X, Y, X_test, Y_test, n_samples)
 
     return X, Y, X_test, Y_test
