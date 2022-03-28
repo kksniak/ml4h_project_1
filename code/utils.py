@@ -23,6 +23,7 @@ def CNN_output_shape(
     padding: int = 0,
     stride: int = 1,
 ) -> int:
+    """Computes output shape of the data, based on parameters of 1D CNN layer"""
     output = int(
         ((input_size + 2 * padding - (dilation * (kernel_size - 1)) - 1) / stride) + 1
     )
@@ -33,6 +34,7 @@ def CNN_output_shape(
 def get_predictions(
     model: pl.LightningModule, data_loader: DataLoader, trainer: pl.Trainer
 ) -> np.ndarray:
+    """Returns prediction as numpy array using privided model, trainer and DataLoader"""
     preds = trainer.predict(model, data_loader)
     test_preds = []
     for pred in preds:
@@ -47,6 +49,7 @@ def get_predictions(
 def get_preds_from_numpy(
     model: pl.LightningModule, trainer: pl.Trainer, X: np.ndarray, softmax=True
 ) -> np.ndarray:
+    """Generates predictions from data as numpy array and returns it as numpy array using provided PyTorch Lightning model and trainer"""
     datset = TensorDataset(torch.tensor(X, dtype=torch.float).squeeze())
     loader = DataLoader(dataset=datset, batch_size=64)
     preds = get_predictions(model, loader, trainer)
@@ -71,6 +74,8 @@ def prepare_datasets(
     squeeze: bool = True,
     y_dtype=torch.long,
 ) -> Tuple[TensorDataset, TensorDataset, TensorDataset]:
+    """Creates train, validation and test dataset as TensorDataset from provided data in numpy arrays """
+
     if squeeze:
         dataset = TensorDataset(
             torch.tensor(x, dtype=torch.float).squeeze(),
