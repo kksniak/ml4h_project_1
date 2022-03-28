@@ -1,13 +1,15 @@
 name: ml4hc-p1
 channels:
+  - pytorch
   - defaults
+  - anaconda
+  - conda-forge
 dependencies:
   - python=3.9
   - cudatoolkit=11.3
   - torchvision
-  - pytorch
   - torchaudio
-  - pytorch-lightning
+  - pytorch
   - pandas
   - scikit-learn
   - black
@@ -16,3 +18,20 @@ dependencies:
   - lightgbm
   - xgboost
   - cudnn
+  - pip:
+    - pytorch-lightning
+    - astunparse==1.6.3
+    - flatbuffers==2.0
+    - gast==0.5.3
+    - google-pasta==0.2.0
+    - h5py==3.6.0
+    - keras==2.8.0
+    - keras-applications==1.0.8
+    - keras-preprocessing==1.1.2
+    - libclang==13.0.0
+    - opt-einsum==3.3.0
+    - tensorflow==2.8.0
+    - tensorflow-io-gcs-filesystem==0.24.0
+    - termcolor==1.1.0
+    - tf-estimator-nightly==2.8.0.dev2021122109
+    - wrapt==1.14.0
