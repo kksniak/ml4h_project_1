@@ -8,7 +8,11 @@ from sklearn.model_selection import train_test_split
 
 
 def load_arrhythmia_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
-    """Returns MIT dataset as specified in the assignment"""
+    """Loads MIT dataset as specified in the assignment
+
+    Returns:
+        Loaded dataset as numpy arrays
+    """
     data_dir = pathlib.Path(__file__).parents[1].joinpath("data")
     df_train = pd.read_csv(
         pathlib.Path(data_dir).joinpath("mitbih_train.csv"), header=None
@@ -28,7 +32,11 @@ def load_arrhythmia_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
 
 
 def load_PTB_dataset() -> Tuple[np.array, np.array, np.array, np.array]:
-    """Returns PTB dataset as specified in the assignment"""
+    """Loads PTB dataset as specified in the assignment
+
+    Returns:
+        Loaded dataset as numpy arrays
+    """
     data_dir = pathlib.Path(__file__).parents[1].joinpath("data")
     df_1 = pd.read_csv(pathlib.Path(data_dir).joinpath("ptbdb_normal.csv"), header=None)
     df_2 = pd.read_csv(

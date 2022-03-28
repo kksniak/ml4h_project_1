@@ -23,7 +23,17 @@ def CNN_output_shape(
     padding: int = 0,
     stride: int = 1,
 ) -> int:
-    """Computes output shape of the data, based on parameters of 1D CNN layer"""
+    """Computes output shape of the data, based on parameters of 1D CNN layer
+    Args:
+        input_size: input size (length) of the data. Defaults to 188.
+        dilation: dilation. Defaults to 1.
+        kernel_size : kernel size of the layer. Defaults to 3.
+        padding: padding used in CNN layer. Defaults to 0.
+        stride: stride used in CNN layer. Defaults to 1.
+
+    Returns:
+        Output shape of the data
+    """
     output = int(
         ((input_size + 2 * padding - (dilation * (kernel_size - 1)) - 1) / stride) + 1
     )
@@ -34,7 +44,16 @@ def CNN_output_shape(
 def get_predictions(
     model: pl.LightningModule, data_loader: DataLoader, trainer: pl.Trainer
 ) -> np.ndarray:
-    """Returns prediction as numpy array using privided model, trainer and DataLoader"""
+    """Generates prediction as numpy array using privided model, trainer and DataLoader
+
+    Args:
+        model: model which will be used to generate prediction
+        data_loader: DataLoader with data to classify
+        trainer: trainer which was used with passed model
+
+    Returns:
+        Obtained predictions
+    """
     preds = trainer.predict(model, data_loader)
     test_preds = []
     for pred in preds:
@@ -49,7 +68,17 @@ def get_predictions(
 def get_preds_from_numpy(
     model: pl.LightningModule, trainer: pl.Trainer, X: np.ndarray, softmax=True
 ) -> np.ndarray:
-    """Generates predictions from data as numpy array and returns it as numpy array using provided PyTorch Lightning model and trainer"""
+    """Generates predictions from data as numpy array using provided PyTorch Lightning model and trainer
+
+    Args:
+        model: model which will be used to generate prediction
+        trainer: trainer which was used with passed model
+        X: data to classify
+        softmax: if True, performs softmax or sigmoid on network outputs. Defaults to True.
+
+    Returns:
+        Returns predictions as numpy array
+    """
     datset = TensorDataset(torch.tensor(X, dtype=torch.float).squeeze())
     loader = DataLoader(dataset=datset, batch_size=64)
     preds = get_predictions(model, loader, trainer)
@@ -74,7 +103,19 @@ def prepare_datasets(
     squeeze: bool = True,
     y_dtype=torch.long,
 ) -> Tuple[TensorDataset, TensorDataset, TensorDataset]:
-    """Creates train, validation and test dataset as TensorDataset from provided data in numpy arrays """
+    """Creates train, validation and test dataset as TensorDataset from provided data in numpy arrays
+
+    Args:
+        x: training data
+        y: training labels
+        x_test : test data
+        y_test: test labels
+        squeeze: if True, squeezes the x before creating dataset. Defaults to True.
+        y_dtype: desired type of labels. Defaults to torch.long.
+
+    Returns:
+        Dataset splited to train, validation and test sets.
+    """
 
     if squeeze:
         dataset = TensorDataset(
