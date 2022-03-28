@@ -62,6 +62,11 @@ def load_PTB_dataset(
         n_samples=-1) -> Tuple[np.array, np.array, np.array, np.array]:
     """Loads PTB dataset as specified in the assignment
 
+    Args:
+        n_samples: Optional argument specifying the size of a random
+            stratified subset to be loaded. Used for debugging
+            purposes.
+
     Returns:
         Loaded dataset as numpy arrays
     """
