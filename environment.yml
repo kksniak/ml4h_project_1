@@ -1,4 +1,4 @@
-name: ml4hc-p1
+name: ml4h-base
 channels:
   - pytorch
   - defaults
