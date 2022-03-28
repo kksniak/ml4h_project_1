@@ -1,9 +1,10 @@
-# Cardiac Abnormalities Prediction - Machine Learning for Healthcare Project 1
+# Cardiac Abnormalities Prediction - Machine Learning for Health Care Project 1
 
 ## Table of Contents
 
 - [Usage](#usage)
-- [Description](#description)
+- [Repository Structure](#repository-structure)
+- [Content Overview](#content-overview)
 - [References](#references)
 
 ## Usage
@@ -53,7 +54,7 @@ The script uses the following options from `config.py`:
     ├── .environment-m1.yml             # MiniForge environment
     └── .environment.yml                # MiniConda environment
 
-## Description
+## Content Overview
 The following is an overview of the contents of this repository.
 
 - `mock/`
