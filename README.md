@@ -18,6 +18,8 @@
 ### Running the Code
 For reproducing the results from the report, a script has been provided that trains and evaluates the models, and saves the results in the `results/` directory.
 
+**Note that complete reproducibility is not guaranteed across platforms, as described in the [PyTorch documentation](https://pytorch.org/docs/stable/notes/randomness.html). Thus, you may observe slight deviations in the results compared to those of the report.**
+
 Run this script from the root directory with `python code/main.py`. 
 
 The script uses the following options from `config.py`:
