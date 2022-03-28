@@ -22,7 +22,6 @@ Run this script from the root directory with `python code/main.py`.
 
 The script uses the following options from `config.py`:
 - `USE_GPU` (default value `-1`): -1 to use all available GPUs, 0 to use no GPU.
-- `RETRAIN_MODELS` (default value `False`): load model weights from file if set to True
 - `DRY_RUN` (default value `False`): do not save results if set to True
 
 ## Repository structure
@@ -77,4 +76,3 @@ The following is an overview of the contents of this repository.
 - `data/` – Directory for raw data.
 - `results/` – Directory where plots and metrics are saved by the evaluation utils.
 
-## References

@@ -16,7 +16,7 @@ from models.ensemble import Ensemble
 from datasets import load_arrhythmia_dataset, load_PTB_dataset
 from utils import get_preds_from_numpy
 from evaluation import evaluate
-from config import RETRAIN_MODELS, DRY_RUN
+from config import DRY_RUN
 
 SEED = 2137
 torch.manual_seed(SEED)
@@ -124,7 +124,7 @@ evaluate("ResNetTransfer-PTB",
 # MIT dataset
 
 attention_model_mit = Attention(dataset="mithb")
-attention_model_mit.train(load_model=not RETRAIN_MODELS)
+attention_model_mit.train(load_model=True)
 attention_model_mit.predict()
 preds_attention_mit = attention_model_mit.y_pred
 evaluate("Attention-MIT",
@@ -135,7 +135,7 @@ evaluate("Attention-MIT",
 # PTBDB dataset
 
 attention_model_ptbdb = Attention(dataset="ptbdb")
-attention_model_ptbdb.train(load_model=not RETRAIN_MODELS)
+attention_model_ptbdb.train(load_model=True)
 attention_model_ptbdb.predict()
 preds_attention_ptbdb = attention_model_ptbdb.y_pred
 evaluate("Attention-PTB",
