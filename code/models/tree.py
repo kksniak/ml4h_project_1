@@ -18,13 +18,36 @@ SEED = 1337
 
 
 class Tree:
-    """Autoencoder featurization model combined with tree model"""
+    """Extremely Randomized Trees model for heartbeat classification.
+    
+    Attributes:
+        dataset: Literal specifying which dataset to use.
+    """
 
-    def __init__(self, dataset: Literal['mit', 'ptb']):
+    def __init__(self, dataset: Literal['mithb', 'ptbdb']):
         self.load_data(dataset)
         self.clf = ExtraTreesClassifier(n_estimators=100)
 
-    def load_data(self, dataset):
+    def load_data(self, dataset: Literal['mithb', 'ptbdb']):
+        """Loads and splits the dataset.
+
+        The train and test datasets are loaded from files and split
+        into a train and a validation dataset.
+
+        Global options:
+            DEBUG: if set to true, a small subsample of the dataset
+                is used to expediate training.
+            UPSAMPLE: if set to true, underrepresented classes are
+                upsampled to match the sample size of the majority
+                class.
+
+        Args:
+            dataset: Literal specifying which dataset to load.
+
+        Raises:
+            ValueError: Raised if an invalid dataset argument is
+                passed.
+        """
         if dataset == 'mit':
             X, y, X_test, y_test = load_arrhythmia_dataset()
         elif dataset == 'ptb':
@@ -64,16 +87,12 @@ if __name__ == '__main__':
     from sklearn.metrics import confusion_matrix, accuracy_score
     import seaborn as sn
     import matplotlib.pyplot as plt
+    from evaluation import evaluate
 
     np.random.seed(SEED)
 
-    model = Tree(dataset='mit')
+    model = Tree(dataset='mithb')
     model.train()
     model.predict()
 
-    cm = confusion_matrix(model.y_test, model.y_pred)
-    sn.heatmap(cm, annot=True, fmt='g')
-    plt.show()
-
-    accuracy = accuracy_score(model.y_test, model.y_pred)
-    print('Accuracy:', accuracy)
+    evaluate('Tree', model.y_pred_proba, model.y_test, save_results=False)
