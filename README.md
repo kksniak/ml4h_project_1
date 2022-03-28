@@ -8,46 +8,43 @@
 
 ## Usage
 
-### Setup Recommended Steps:
+### Environment Setup
 
-All data should be in the data directory. (Maybe draw diagram??)
+1. Create a top-level directory named `data` and put the csv files in it. A detailed diagram is included in the [repository structure](#repository-structure).
+1. Create a conda environment with `conda env create -f [ENV_NAME].yml`, using the desired environment file. There MiniConda environment is recommended unless support for hardware acceleration with Apple's [Metal API](https://developer.apple.com/metal/) is desired.
+1. Activate the conda environment with `conda activate ml4h`
 
-Create and activate an environment in conda by running the following commands:
-```
-$ conda env create -f env_name.yml
-$ conda activate ml4h
-```
+### Running the Code
+For reproducing the results from the report, a script has been provided that trains and evaluates the models, and saves the results in the `results/` directory.
 
-### Reproducibility of results
-Run main.py or sth like that
 
-# Repository structure
+## Repository structure
 
-.
-├── code                                
-│   ├── mock                        # Static mock data
-│   │   └── sample_predictions.py
-│   ├── models                      # Classification models
-│   │   ├── attention_model.py
-│   │   ├── autoencoder_tree.py
-│   │   ├── baselines.py
-│   │   ├── ensemble.py
-│   │   ├── resnet1d.py
-│   │   ├── tree.py
-│   │   ├── vanilla_cnn.py
-│   │   └── vanilla_rnn.py
-│   ├── config.py                   # Config (e.g. GPU)
-│   ├── datasets.py                 # Utils for loading datasets
-│   ├── evaluation.py               # Utils for evaluating model performance
-│   ├── main.py                     # Script for training and evaluating all models
-│   └── utils.py
-├── data                            # Raw data
-├── results                         # Plots and evaluation metrics
-├── .gitignore
-├── .pylintrc                       # Linting config
-├── .style.yapf                     # Formatter config
-├── .environment-m1.yml             # MiniForge environment
-└── .environment.yml                # MiniConda environment
+    .
+    ├── code                                
+    │   ├── mock                        # Static mock data
+    │   │   └── sample_predictions.py
+    │   ├── models                      # Classification models
+    │   │   ├── attention_model.py
+    │   │   ├── autoencoder_tree.py
+    │   │   ├── baselines.py
+    │   │   ├── ensemble.py
+    │   │   ├── resnet1d.py
+    │   │   ├── tree.py
+    │   │   ├── vanilla_cnn.py
+    │   │   └── vanilla_rnn.py
+    │   ├── config.py                   # Config (e.g. GPU)
+    │   ├── datasets.py                 # Utils for loading datasets
+    │   ├── evaluation.py               # Utils for evaluating model performance
+    │   ├── main.py                     # Script for training and evaluating all models
+    │   └── utils.py
+    ├── data                            # Put CSV data here
+    ├── results                         # Plots and evaluation metrics
+    ├── .gitignore
+    ├── .pylintrc                       # Linting config
+    ├── .style.yapf                     # Formatter config
+    ├── .environment-m1.yml             # MiniForge environment
+    └── .environment.yml                # MiniConda environment
 
 ## Description
 Description of files
