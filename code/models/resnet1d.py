@@ -248,7 +248,9 @@ class ResNetTransferLearning(pl.LightningModule):
         return optimizer
 
 
-def perform_transfer_learning(max_epochs: int = 15):
+def perform_transfer_learning(
+    max_epochs: int = 15,
+) -> tuple[pl.LightningModule, pl.Trainer]:
     pretrained_model, _ = train_resnet([10, 20, 40, 40], "mithb", max_epochs)
     model = ResNetTransferLearning(pretrained_model=pretrained_model)
     x, y, x_test, y_test = load_PTB_dataset()
