@@ -4,7 +4,7 @@
 
 - [Usage](#usage)
 - [Description](#description)
-- [Sources](#sources)
+- [References](#references)
 
 ## Usage
 
