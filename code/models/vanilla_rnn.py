@@ -93,6 +93,20 @@ class vanillaRNN(pl.LightningModule):
 def train_vanilla_rnn(
     no_hidden: int, dataset: str, num_layers: int = 1, max_epochs: int = 15
 ) -> tuple[pl.LightningModule, pl.Trainer]:
+    """_summary_
+
+    Args:
+        no_hidden: Size of hidden state
+        dataset: name of dataset the model will be traind on, either "mithb" or "ptbdb"
+        num_layers: Number of RNN layers. Defaults to 1.
+        max_epochs: Maximum number of training epochs. Defaults to 15.
+
+    Raises:
+        ValueError: If provided incorrect dataset name.
+
+    Returns:
+        Trained model and trainer.
+    """
     if dataset == "mithb":
         x, y, x_test, y_test = load_arrhythmia_dataset()
         train_dataset, val_dataset, test_dataset = prepare_datasets(

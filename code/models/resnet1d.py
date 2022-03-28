@@ -163,6 +163,19 @@ class ResNet(pl.LightningModule):
 
 
 def train_resnet(channels: list[int], dataset: str, max_epochs: int = 15):
+    """Traines ResNet model on selected dataset
+
+    Args:
+        channels: list of channels for each block
+        dataset: name of dataset the model will be traind on, either "mithb" or "ptbdb"
+        max_epochs: Maximum number of training epochs. Defaults to 15.
+
+    Raises:
+        ValueError: If provided incorrect dataset name.
+
+    Returns:
+        Trained model and trainer.
+    """
     if dataset == "mithb":
         x, y, x_test, y_test = load_arrhythmia_dataset()
         train_dataset, val_dataset, test_dataset = prepare_datasets(
@@ -251,6 +264,14 @@ class ResNetTransferLearning(pl.LightningModule):
 def perform_transfer_learning(
     max_epochs: int = 15,
 ) -> tuple[pl.LightningModule, pl.Trainer]:
+    """Traines base model on MIT dataset and then retrained it on PTB dataset
+
+    Args:
+        max_epochs: Maximum number of training epochs. Defaults to 15.
+
+    Returns:
+        Trained model and trainer.
+    """
     pretrained_model, _ = train_resnet([10, 20, 40, 40], "mithb", max_epochs)
     model = ResNetTransferLearning(pretrained_model=pretrained_model)
     x, y, x_test, y_test = load_PTB_dataset()

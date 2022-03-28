@@ -104,6 +104,21 @@ def train_vanilla_cnn(
     dataset: str,
     max_epochs: int = 15,
 ) -> tuple[pl.LightningModule, pl.Trainer]:
+    """Trains vanilla CNN model on selected dataset.
+
+    Args:
+        channels: list of channels for each layer
+        kernel_size: kernel size for all layers
+        cnn_output_size: output size of last convolutional layer for selected configuration
+        dataset: name of dataset the model will be traind on, either "mithb" or "ptbdb"
+        max_epochs: Maximum number of training epochs. Defaults to 15.
+
+    Raises:
+        ValueError: If provided incorrect dataset name.
+
+    Returns:
+        Trained model and trainer.
+    """
 
     if dataset == "mithb":
         x, y, x_test, y_test = load_arrhythmia_dataset()
@@ -135,6 +150,15 @@ def train_vanilla_cnn(
 
 
 def get_cnn_outputs(model: vanillaCNN, X: np.ndarray) -> np.ndarray:
+    """Returns features from last convolutional layer of the model.
+
+    Args:
+        model: vanilla CNN models which will be used to extract features
+        X: input data for the model
+
+    Returns:
+        Flattend features from last convolutional layer of the model, for a given input data.
+    """
     datset = TensorDataset(torch.tensor(X, dtype=torch.float).squeeze())
     loader = DataLoader(dataset=datset, batch_size=64)
     outputs = []
