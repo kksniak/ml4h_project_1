@@ -8,15 +8,18 @@ import torchmetrics
 from models.resnet1d import ResNet1d
 
 
-
-
 class vanillaRNN(pl.LightningModule):
-    def __init__(self, no_hidden: int, no_classes: int, num_layers: int = 1) -> None:
+
+    def __init__(self,
+                 no_hidden: int,
+                 no_classes: int,
+                 num_layers: int = 1) -> None:
         super().__init__()
 
-        self.rnn = nn.RNN(
-            input_size=1, hidden_size=no_hidden, batch_first=True, num_layers=num_layers
-        )
+        self.rnn = nn.RNN(input_size=1,
+                          hidden_size=no_hidden,
+                          batch_first=True,
+                          num_layers=num_layers)
         self.num_layers = num_layers
         if no_classes == 2:
             self.fc = nn.Linear(no_hidden * num_layers, 1)
@@ -89,10 +92,14 @@ class vanillaRNN(pl.LightningModule):
 
 
 class LSTM(pl.LightningModule):
-    def __init__(self, hidden_size: int, num_classes: int, num_layers: int) -> None:
+
+    def __init__(self, hidden_size: int, num_classes: int,
+                 num_layers: int) -> None:
         super().__init__()
 
-        self.lstm = nn.LSTM(input_size=1, hidden_size=hidden_size, batch_first=True)
+        self.lstm = nn.LSTM(input_size=1,
+                            hidden_size=hidden_size,
+                            batch_first=True)
         self.fc = nn.Linear(hidden_size, num_classes)
         self.hidden_size = hidden_size
 
@@ -151,7 +158,3 @@ class LSTM(pl.LightningModule):
 
     def val_dataloader(self):
         pass
-
-
-
-

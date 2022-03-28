@@ -13,12 +13,17 @@ from config import USE_GPU
 
 
 class vanillaRNN(pl.LightningModule):
-    def __init__(self, no_hidden: int, no_classes: int, num_layers: int = 1) -> None:
+
+    def __init__(self,
+                 no_hidden: int,
+                 no_classes: int,
+                 num_layers: int = 1) -> None:
         super().__init__()
 
-        self.rnn = nn.RNN(
-            input_size=1, hidden_size=no_hidden, batch_first=True, num_layers=num_layers
-        )
+        self.rnn = nn.RNN(input_size=1,
+                          hidden_size=no_hidden,
+                          batch_first=True,
+                          num_layers=num_layers)
         self.num_layers = num_layers
         if no_classes == 2:
             self.fc = nn.Linear(no_hidden * num_layers, 1)
@@ -91,8 +96,10 @@ class vanillaRNN(pl.LightningModule):
 
 
 def train_vanilla_rnn(
-    no_hidden: int, dataset: str, num_layers: int = 1, max_epochs: int = 15
-) -> tuple[pl.LightningModule, pl.Trainer]:
+        no_hidden: int,
+        dataset: str,
+        num_layers: int = 1,
+        max_epochs: int = 15) -> tuple[pl.LightningModule, pl.Trainer]:
     """_summary_
 
     Args:
@@ -110,14 +117,12 @@ def train_vanilla_rnn(
     if dataset == "mithb":
         x, y, x_test, y_test = load_arrhythmia_dataset()
         train_dataset, val_dataset, test_dataset = prepare_datasets(
-            x, y, x_test, y_test, False
-        )
+            x, y, x_test, y_test, False)
         model = vanillaRNN(no_hidden, 5, num_layers)
     elif dataset == "ptbdb":
         x, y, x_test, y_test = load_PTB_dataset()
         train_dataset, val_dataset, test_dataset = prepare_datasets(
-            x, y, x_test, y_test, False, torch.float
-        )
+            x, y, x_test, y_test, False, torch.float)
         model = vanillaRNN(no_hidden, 2, num_layers)
     else:
         raise ValueError("Incorrect dataset!")
@@ -132,7 +137,9 @@ def train_vanilla_rnn(
         gradient_clip_val=0.5,
     )
     trainer.fit(
-        model=model, train_dataloaders=train_loader, val_dataloaders=val_loader,
+        model=model,
+        train_dataloaders=train_loader,
+        val_dataloaders=val_loader,
     )
 
     return model, trainer

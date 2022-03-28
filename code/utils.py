@@ -34,16 +34,14 @@ def CNN_output_shape(
     Returns:
         Output shape of the data
     """
-    output = int(
-        ((input_size + 2 * padding - (dilation * (kernel_size - 1)) - 1) / stride) + 1
-    )
+    output = int(((input_size + 2 * padding -
+                   (dilation * (kernel_size - 1)) - 1) / stride) + 1)
 
     return output
 
 
-def get_predictions(
-    model: pl.LightningModule, data_loader: DataLoader, trainer: pl.Trainer
-) -> np.ndarray:
+def get_predictions(model: pl.LightningModule, data_loader: DataLoader,
+                    trainer: pl.Trainer) -> np.ndarray:
     """Generates prediction as numpy array using privided model, trainer and DataLoader
 
     Args:
@@ -65,9 +63,10 @@ def get_predictions(
     return test_preds
 
 
-def get_preds_from_numpy(
-    model: pl.LightningModule, trainer: pl.Trainer, X: np.ndarray, softmax=True
-) -> np.ndarray:
+def get_preds_from_numpy(model: pl.LightningModule,
+                         trainer: pl.Trainer,
+                         X: np.ndarray,
+                         softmax=True) -> np.ndarray:
     """Generates predictions from data as numpy array using provided PyTorch Lightning model and trainer
 
     Args:
@@ -138,8 +137,9 @@ def prepare_datasets(
         )
 
     train_dataset, val_dataset = random_split(
-        dataset, [int(0.9 * len(dataset)), len(dataset) - int(0.9 * len(dataset))]
-    )
+        dataset,
+        [int(0.9 * len(dataset)),
+         len(dataset) - int(0.9 * len(dataset))])
 
     return train_dataset, val_dataset, test_dataset
 

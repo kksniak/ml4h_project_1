@@ -16,16 +16,17 @@ from config import USE_GPU
 
 
 class vanillaCNN(pl.LightningModule):
-    def __init__(
-        self, channels: list[int], kernel_size: int, output_size: int, no_classes: int
-    ) -> None:
+
+    def __init__(self, channels: list[int], kernel_size: int, output_size: int,
+                 no_classes: int) -> None:
         super().__init__()
         self.net = nn.Sequential()
 
         for i in range(len(channels) - 1):
             self.net.add_module(
                 f"cnn{i}",
-                nn.Conv1d(channels[i], channels[i + 1], kernel_size=kernel_size),
+                nn.Conv1d(channels[i], channels[i + 1],
+                          kernel_size=kernel_size),
             )
             self.net.add_module(f"act{i}", nn.ReLU())
 
@@ -123,15 +124,15 @@ def train_vanilla_cnn(
     if dataset == "mithb":
         x, y, x_test, y_test = load_arrhythmia_dataset()
         train_dataset, val_dataset, test_dataset = prepare_datasets(
-            x, y, x_test, y_test, True
-        )
-        model = vanillaCNN(channels, kernel_size, channels[-1] * cnn_output_size, 5)
+            x, y, x_test, y_test, True)
+        model = vanillaCNN(channels, kernel_size,
+                           channels[-1] * cnn_output_size, 5)
     elif dataset == "ptbdb":
         x, y, x_test, y_test = load_PTB_dataset()
         train_dataset, val_dataset, test_dataset = prepare_datasets(
-            x, y, x_test, y_test, True, y_dtype=torch.float
-        )
-        model = vanillaCNN(channels, kernel_size, channels[-1] * cnn_output_size, 2)
+            x, y, x_test, y_test, True, y_dtype=torch.float)
+        model = vanillaCNN(channels, kernel_size,
+                           channels[-1] * cnn_output_size, 2)
     else:
         raise ValueError("Incorrect dataset!")
 
@@ -142,9 +143,12 @@ def train_vanilla_cnn(
         gpus=USE_GPU,
         max_epochs=max_epochs,
         callbacks=[EarlyStopping(monitor="val_loss", mode="min")],
-        default_root_dir=pathlib.Path(__file__).parents[1].joinpath("saved_models"),
+        default_root_dir=pathlib.Path(__file__).parents[1].joinpath(
+            "saved_models"),
     )
-    trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    trainer.fit(model=model,
+                train_dataloaders=train_loader,
+                val_dataloaders=val_loader)
 
     return model, trainer
 

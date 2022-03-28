@@ -27,9 +27,8 @@ SEED = 2137
 class Ensemble:
     """Ensemble method"""
 
-    def __init__(
-        self, dataset: Literal["mithb", "ptbdb"], method: Literal["probs", "feats"]
-    ):
+    def __init__(self, dataset: Literal["mithb", "ptbdb"],
+                 method: Literal["probs", "feats"]):
         """Class initialisation
 
         Args:
@@ -50,7 +49,7 @@ class Ensemble:
         Args:
             models (dict, optional): Dictionary of already trained models (restricted to categories attention, autoencoder, CNN, and ResNet models). Defaults to {}.
         """
-        
+
         if "attention" in models.keys():
             self.attention_model = models["attention"]
         else:
@@ -60,9 +59,8 @@ class Ensemble:
         if "autoencoder" in models.keys():
             self.autoencoder_tree_model = models["autoencoder"]
         else:
-            self.autoencoder_tree_model = AutoencoderTree(
-                dataset=self.dataset, train_ae_on="full"
-            )
+            self.autoencoder_tree_model = AutoencoderTree(dataset=self.dataset,
+                                                          train_ae_on="full")
             self.autoencoder_tree_model.train()
 
         if "cnn" in models.keys():
@@ -72,15 +70,13 @@ class Ensemble:
                 channels=[1, 20, 20, 40],
                 kernel_size=10,
                 cnn_output_size=160,
-                dataset=self.dataset
-            )
+                dataset=self.dataset)
 
         if "resnet" in models.keys():
             self.resnet_model, self.resnet_trainer = models["resnet"]
         else:
             self.resnet_model, self.resnet_trainer = train_resnet(
-                [10, 20, 20, 40], dataset=self.dataset, max_epochs=15
-            )
+                [10, 20, 20, 40], dataset=self.dataset, max_epochs=15)
 
     def probabilities(self, X):
         """Ensemble method using softmax layers/probabilities for each function as features
@@ -95,15 +91,10 @@ class Ensemble:
             (
                 self.attention_model.clf.predict(X),
                 self.autoencoder_tree_model.clf.predict_proba(
-                    (
-                        self.autoencoder_tree_model.featurizer.predict(
-                            self.autoencoder_tree_model._pad(X)
-                        )
-                    )
-                ),
-                get_preds_from_numpy(
-                    self.vanilla_cnn_model, self.vanilla_cnn_trainer, X
-                ),
+                    (self.autoencoder_tree_model.featurizer.predict(
+                        self.autoencoder_tree_model._pad(X)))),
+                get_preds_from_numpy(self.vanilla_cnn_model,
+                                     self.vanilla_cnn_trainer, X),
                 get_preds_from_numpy(self.resnet_model, self.resnet_trainer, X),
             ),
             axis=1,
@@ -122,19 +113,17 @@ class Ensemble:
         """
 
         attention_model_features = keras.Model(
-            self.attention_model.clf.input, self.attention_model.clf.layers[-3].output
-        )
+            self.attention_model.clf.input,
+            self.attention_model.clf.layers[-3].output)
 
         X_feats = np.concatenate(
             (
                 attention_model_features.predict(X),
                 self.autoencoder_tree_model.featurizer.predict(
-                    self.autoencoder_tree_model._pad(X)
-                ),
+                    self.autoencoder_tree_model._pad(X)),
                 get_cnn_outputs(self.vanilla_cnn_model, X),
                 get_preds_from_numpy(
-                    self.resnet_model, self.resnet_trainer, X, softmax=False
-                ),
+                    self.resnet_model, self.resnet_trainer, X, softmax=False),
             ),
             axis=1,
         )
@@ -151,10 +140,12 @@ class Ensemble:
         if self.dataset == 'mithb' and self.method == "feats":
             print("Feature Selection...")
             self.selector_1 = VarianceThreshold()
-            self.X_train = self.selector_1.fit_transform(self.X_train, self.y_train)
-            self.selector_2 = SelectKBest(f_classif, k = 200)
-            self.X_train = self.selector_2.fit_transform(self.X_train, self.y_train)
-            
+            self.X_train = self.selector_1.fit_transform(
+                self.X_train, self.y_train)
+            self.selector_2 = SelectKBest(f_classif, k=200)
+            self.X_train = self.selector_2.fit_transform(
+                self.X_train, self.y_train)
+
         print(self.X_train.shape)
 
         print("Training ensemble classifier...")
@@ -168,8 +159,8 @@ class Ensemble:
         """Prediction and feature selection if needed"""
         self.X_test = self.featuriser(self.X_test)
         if self.dataset == 'mithb' and self.method == "feats":
-           self.X_test = self.selector_1.transform(self.X_test)
-           self.X_test = self.selector_2.transform(self.X_test)
+            self.X_test = self.selector_1.transform(self.X_test)
+            self.X_test = self.selector_2.transform(self.X_test)
 
         self.y_pred = self.clf.predict(self.X_test)
         self.y_pred_proba = self.clf.predict_proba(self.X_test)
@@ -209,4 +200,3 @@ if __name__ == "__main__":
     print(cm)
     accuracy = accuracy_score(model.y_test, model.y_pred)
     print("Accuracy:", accuracy)
-

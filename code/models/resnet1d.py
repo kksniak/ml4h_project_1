@@ -29,10 +29,16 @@ class BasicBlock(nn.Module):
 
         norm_layer = nn.BatchNorm1d
 
-        self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=9, padding=4)
+        self.conv1 = nn.Conv1d(in_channels,
+                               out_channels,
+                               kernel_size=9,
+                               padding=4)
         self.bn1 = norm_layer(out_channels)
         self.relu = nn.ReLU(inplace=True)
-        self.conv2 = nn.Conv1d(out_channels, out_channels, kernel_size=9, padding=4)
+        self.conv2 = nn.Conv1d(out_channels,
+                               out_channels,
+                               kernel_size=9,
+                               padding=4)
         self.bn2 = norm_layer(out_channels)
 
         self.conv_for_x = nn.Conv1d(in_channels, out_channels, 1)
@@ -58,6 +64,7 @@ class BasicBlock(nn.Module):
 
 
 class ResNet1d(nn.Module):
+
     def __init__(self, channels: List[int], no_classes: int) -> None:
         super().__init__()
         self.conv1 = nn.Conv1d(1, channels[0], 12)
@@ -70,8 +77,12 @@ class ResNet1d(nn.Module):
         )
         self.max_pool = nn.MaxPool1d(3, 2)
 
-        self.block2 = BasicBlock(channels[1], channels[2], change_no_channels=True)
-        self.block3 = BasicBlock(channels[2], channels[3], change_no_channels=True)
+        self.block2 = BasicBlock(channels[1],
+                                 channels[2],
+                                 change_no_channels=True)
+        self.block3 = BasicBlock(channels[2],
+                                 channels[3],
+                                 change_no_channels=True)
         output_size = self._cnn_pass(torch.rand(16, 1, 187))
 
         if no_classes == 2:
@@ -105,6 +116,7 @@ class ResNet1d(nn.Module):
 
 
 class ResNet(pl.LightningModule):
+
     def __init__(self, channels: list[int], no_classes: int) -> None:
         super().__init__()
 
@@ -179,14 +191,12 @@ def train_resnet(channels: list[int], dataset: str, max_epochs: int = 15):
     if dataset == "mithb":
         x, y, x_test, y_test = load_arrhythmia_dataset()
         train_dataset, val_dataset, test_dataset = prepare_datasets(
-            x, y, x_test, y_test, True
-        )
+            x, y, x_test, y_test, True)
         model = ResNet(channels=channels, no_classes=5)
     elif dataset == "ptbdb":
         x, y, x_test, y_test = load_PTB_dataset()
         train_dataset, val_dataset, test_dataset = prepare_datasets(
-            x, y, x_test, y_test, True, y_dtype=torch.float
-        )
+            x, y, x_test, y_test, True, y_dtype=torch.float)
         model = ResNet(channels=channels, no_classes=2)
     else:
         raise ValueError("Incorrect dataset!")
@@ -198,14 +208,18 @@ def train_resnet(channels: list[int], dataset: str, max_epochs: int = 15):
         gpus=USE_GPU,
         max_epochs=max_epochs,
         callbacks=[EarlyStopping(monitor="val_loss", mode="min")],
-        default_root_dir=pathlib.Path(__file__).parents[1].joinpath("saved_models"),
+        default_root_dir=pathlib.Path(__file__).parents[1].joinpath(
+            "saved_models"),
     )
-    trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    trainer.fit(model=model,
+                train_dataloaders=train_loader,
+                val_dataloaders=val_loader)
 
     return model, trainer
 
 
 class ResNetTransferLearning(pl.LightningModule):
+
     def __init__(self, pretrained_model: ResNet) -> None:
         super().__init__()
 
@@ -262,8 +276,7 @@ class ResNetTransferLearning(pl.LightningModule):
 
 
 def perform_transfer_learning(
-    max_epochs: int = 15,
-) -> tuple[pl.LightningModule, pl.Trainer]:
+    max_epochs: int = 15,) -> tuple[pl.LightningModule, pl.Trainer]:
     """Traines base model on MIT dataset and then retrained it on PTB dataset
 
     Args:
@@ -276,8 +289,7 @@ def perform_transfer_learning(
     model = ResNetTransferLearning(pretrained_model=pretrained_model)
     x, y, x_test, y_test = load_PTB_dataset()
     train_dataset, val_dataset, test_dataset = prepare_datasets(
-        x, y, x_test, y_test, True, y_dtype=torch.float
-    )
+        x, y, x_test, y_test, True, y_dtype=torch.float)
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=64)
@@ -286,9 +298,11 @@ def perform_transfer_learning(
         gpus=USE_GPU,
         max_epochs=max_epochs,
         callbacks=[EarlyStopping(monitor="val_loss", mode="min")],
-        default_root_dir=pathlib.Path(__file__).parents[1].joinpath("saved_models"),
+        default_root_dir=pathlib.Path(__file__).parents[1].joinpath(
+            "saved_models"),
     )
-    trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    trainer.fit(model=model,
+                train_dataloaders=train_loader,
+                val_dataloaders=val_loader)
 
     return model, trainer
-

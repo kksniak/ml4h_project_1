@@ -21,7 +21,6 @@ SEED = 2137
 torch.manual_seed(SEED)
 np.random.seed(SEED)
 
-
 x_mit, y_mit, x_test_mit, y_test_mit = load_arrhythmia_dataset()
 x_ptbdb, y_ptbdb, x_test_ptbdb, y_test_ptbdb = load_PTB_dataset()
 
@@ -48,7 +47,8 @@ v_cnn_model_mit, v_cnn_trainer_mit = train_vanilla_cnn(
     dataset="mithb",
     max_epochs=15,
 )
-preds_vcnn_mit = get_preds_from_numpy(v_cnn_model_mit, v_cnn_trainer_mit, x_test_mit)
+preds_vcnn_mit = get_preds_from_numpy(v_cnn_model_mit, v_cnn_trainer_mit,
+                                      x_test_mit)
 evaluate("VanillaCNN-MIT", preds_vcnn_mit, y_test_mit, save_results=True)
 
 # PTBDB dataset
@@ -59,55 +59,53 @@ v_cnn_model_ptbdb, v_cnn_trainer_ptbdb = train_vanilla_cnn(
     dataset="ptbdb",
     max_epochs=15,
 )
-preds_vcnn_ptbdb = get_preds_from_numpy(
-    v_cnn_model_ptbdb, v_cnn_trainer_ptbdb, x_test_ptbdb
-)
+preds_vcnn_ptbdb = get_preds_from_numpy(v_cnn_model_ptbdb, v_cnn_trainer_ptbdb,
+                                        x_test_ptbdb)
 evaluate("VanillaCNN-PTB", preds_vcnn_ptbdb, y_test_ptbdb, save_results=True)
 
 ## Vanilla RNN
 # MIT dataset
-v_rnn_model_mit, v_rnn_trainer_mit = train_vanilla_rnn(
-    no_hidden=512, dataset="mithb", num_layers=1
-)
-preds_vrnn_mit = get_preds_from_numpy(v_rnn_model_mit, v_rnn_trainer_mit, x_test_mit)
+v_rnn_model_mit, v_rnn_trainer_mit = train_vanilla_rnn(no_hidden=512,
+                                                       dataset="mithb",
+                                                       num_layers=1)
+preds_vrnn_mit = get_preds_from_numpy(v_rnn_model_mit, v_rnn_trainer_mit,
+                                      x_test_mit)
 evaluate("VanillaRNN-MIT", preds_vrnn_mit, y_test_mit, save_results=True)
 
 # PTBDB dataset
-v_rnn_model_ptbdb, v_rnn_trainer_ptbdb = train_vanilla_rnn(
-    no_hidden=512, dataset="ptbdb", num_layers=1
-)
-preds_vrnn_ptbdb = get_preds_from_numpy(
-    v_rnn_model_ptbdb, v_rnn_trainer_ptbdb, x_test_ptbdb
-)
+v_rnn_model_ptbdb, v_rnn_trainer_ptbdb = train_vanilla_rnn(no_hidden=512,
+                                                           dataset="ptbdb",
+                                                           num_layers=1)
+preds_vrnn_ptbdb = get_preds_from_numpy(v_rnn_model_ptbdb, v_rnn_trainer_ptbdb,
+                                        x_test_ptbdb)
 evaluate("VanillaRNN-PTB", preds_vrnn_ptbdb, y_test_ptbdb, save_results=True)
-
 
 ### TASK 2
 ## Residual Neural Network
 # MIT dataset
-resnet_model_mit, resnet_trainer_mit = train_resnet(
-    channels=[10, 20, 20, 40], dataset="mithb", max_epochs=15
-)
-preds_resnet_mit = get_preds_from_numpy(
-    resnet_model_mit, resnet_trainer_mit, x_test_mit
-)
+resnet_model_mit, resnet_trainer_mit = train_resnet(channels=[10, 20, 20, 40],
+                                                    dataset="mithb",
+                                                    max_epochs=15)
+preds_resnet_mit = get_preds_from_numpy(resnet_model_mit, resnet_trainer_mit,
+                                        x_test_mit)
 evaluate("ResNet-MIT", preds_resnet_mit, y_test_mit, save_results=True)
 
 # PTBDB dataset
 resnet_model_ptbdb, resnet_trainer_ptbdb = train_resnet(
-    channels=[10, 20, 20, 40], dataset="ptbdb", max_epochs=15
-)
-preds_resnet_ptbdb = get_preds_from_numpy(
-    resnet_model_ptbdb, resnet_trainer_ptbdb, x_test_ptbdb
-)
+    channels=[10, 20, 20, 40], dataset="ptbdb", max_epochs=15)
+preds_resnet_ptbdb = get_preds_from_numpy(resnet_model_ptbdb,
+                                          resnet_trainer_ptbdb, x_test_ptbdb)
 evaluate("ResNet-PTB", preds_resnet_ptbdb, y_test_ptbdb, save_results=True)
 
 # Transer learning for ResNet
 resnet_model_transfer, resnet_trainer_transfer = perform_transfer_learning(15)
-preds_resnet_transfer = get_preds_from_numpy(
-    resnet_model_transfer, resnet_trainer_transfer, x_test_ptbdb
-)
-evaluate("ResNetTransfer-PTB", preds_resnet_transfer, y_test_ptbdb, save_results=True)
+preds_resnet_transfer = get_preds_from_numpy(resnet_model_transfer,
+                                             resnet_trainer_transfer,
+                                             x_test_ptbdb)
+evaluate("ResNetTransfer-PTB",
+         preds_resnet_transfer,
+         y_test_ptbdb,
+         save_results=True)
 
 # Attention Model
 # MIT dataset
@@ -124,7 +122,10 @@ attention_model_ptbdb = Attention(dataset="ptbdb")
 attention_model_ptbdb.train(load_model=True)
 attention_model_ptbdb.predict()
 preds_attention_ptbdb = attention_model_ptbdb.y_pred
-evaluate("Attention-PTB", preds_attention_ptbdb, y_test_ptbdb, save_results=True)
+evaluate("Attention-PTB",
+         preds_attention_ptbdb,
+         y_test_ptbdb,
+         save_results=True)
 
 # Transfer Learning for Attention (freezed layers)
 
@@ -132,9 +133,10 @@ attention_model_transfer_1 = Attention(dataset="ptbdb")
 attention_model_transfer_1.transfer_learning_method_1()
 attention_model_transfer_1.predict()
 preds_attention_transfer_1 = attention_model_transfer_1.y_pred
-evaluate(
-    "AttentionFreezed-PTB", preds_attention_transfer_1, y_test_ptbdb, save_results=True
-)
+evaluate("AttentionFreezed-PTB",
+         preds_attention_transfer_1,
+         y_test_ptbdb,
+         save_results=True)
 
 # Transfer Learning for Attention (training entire model)
 
@@ -156,7 +158,10 @@ autoencoder_model_mit = AutoencoderTree(dataset="mithb", train_ae_on="same")
 autoencoder_model_mit.train()
 autoencoder_model_mit.predict()
 preds_autoencoder_mit = autoencoder_model_mit.y_pred_proba
-evaluate("AutoencoderTree-MIT", preds_autoencoder_mit, y_test_mit, save_results=True)
+evaluate("AutoencoderTree-MIT",
+         preds_autoencoder_mit,
+         y_test_mit,
+         save_results=True)
 
 # PTBDB dataset
 
@@ -164,13 +169,15 @@ autoencoder_model_ptbdb = AutoencoderTree(dataset="ptbdb", train_ae_on="same")
 autoencoder_model_ptbdb.train()
 autoencoder_model_ptbdb.predict()
 preds_autoencoder_ptbdb = autoencoder_model_ptbdb.y_pred_proba
-evaluate(
-    "AutoencoderTree-PTB", preds_autoencoder_ptbdb, y_test_ptbdb, save_results=True
-)
+evaluate("AutoencoderTree-PTB",
+         preds_autoencoder_ptbdb,
+         y_test_ptbdb,
+         save_results=True)
 
 # Transfer Learning
 
-autoencoder_model_transfer = AutoencoderTree(dataset="ptbdb", train_ae_on="full")
+autoencoder_model_transfer = AutoencoderTree(dataset="ptbdb",
+                                             train_ae_on="full")
 autoencoder_model_transfer.train()
 autoencoder_model_transfer.predict()
 preds_autoencoder_transfer = autoencoder_model_transfer.y_pred_proba
@@ -180,7 +187,6 @@ evaluate(
     y_test_ptbdb,
     save_results=True,
 )
-
 
 ### Task 3
 
@@ -224,9 +230,7 @@ evaluate(
     save_results=True,
 )
 
-
 ## Method 2: Combined features from hidden layers
-
 
 # PTBDB dataset
 ensemble_model_method2_ptbdb = Ensemble(dataset="ptbdb", method="feats")

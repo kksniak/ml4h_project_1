@@ -64,18 +64,18 @@ class Attention:
         for _ in range(n_encoders):
 
             res_1 = x
-            x = MultiHeadAttention(key_dim=key_dim, num_heads=num_heads, dropout=0.1)(
-                x, x
-            )
+            x = MultiHeadAttention(key_dim=key_dim,
+                                   num_heads=num_heads,
+                                   dropout=0.1)(x, x)
             res_2 = x + res_1
             x = res_2
 
             for filter in feedforward_layers:
                 x = Conv1D(filters=filter, kernel_size=1, activation="relu")(x)
                 x = Dropout(0.1)(x)
-                x = Conv1D(filters=inputs.shape[-1], kernel_size=1, activation="relu")(
-                    x
-                )
+                x = Conv1D(filters=inputs.shape[-1],
+                           kernel_size=1,
+                           activation="relu")(x)
                 x = x + res_2
 
         x = GlobalMaxPooling1D(data_format="channels_first")(x)
@@ -100,12 +100,13 @@ class Attention:
             return
 
         n_classes = len(np.unique(self.y_train))
-        early_stopping = EarlyStopping(
-            patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True
-        )
-        redonplat = ReduceLROnPlateau(
-            monitor="val_acc", factor=0.5, mode="max", patience=3, verbose=2
-        )
+        early_stopping = EarlyStopping(patience=EARLY_STOPPING_PATIENCE,
+                                       restore_best_weights=True)
+        redonplat = ReduceLROnPlateau(monitor="val_acc",
+                                      factor=0.5,
+                                      mode="max",
+                                      patience=3,
+                                      verbose=2)
         callbacks = [early_stopping, redonplat]
 
         print("Fitting attention model...")
@@ -138,25 +139,26 @@ class Attention:
         """
         self.set_seeds()
 
-        early_stopping = EarlyStopping(
-            patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True
-        )
-        redonplat = ReduceLROnPlateau(
-            monitor="val_acc", factor=0.5, mode="max", patience=3, verbose=2
-        )
+        early_stopping = EarlyStopping(patience=EARLY_STOPPING_PATIENCE,
+                                       restore_best_weights=True)
+        redonplat = ReduceLROnPlateau(monitor="val_acc",
+                                      factor=0.5,
+                                      mode="max",
+                                      patience=3,
+                                      verbose=2)
         callbacks = [early_stopping, redonplat]
 
-        print("Fitting PTB dataset into attention model (training whole model)...")
-        pretrained_model = keras.models.load_model(
-            "models/attention_model_checkpoints/arythmia_checkpoint"
+        print(
+            "Fitting PTB dataset into attention model (training whole model)..."
         )
+        pretrained_model = keras.models.load_model(
+            "models/attention_model_checkpoints/arythmia_checkpoint")
 
         # replace output layer
         self.clf = keras.Model(
             inputs=pretrained_model.input,
-            outputs=Dense(2, activation="softmax", name="dense_3")(
-                pretrained_model.layers[-2].output
-            ),
+            outputs=Dense(2, activation="softmax",
+                          name="dense_3")(pretrained_model.layers[-2].output),
         )
 
         # freeze layers (apart from feedforwark network)
@@ -181,25 +183,26 @@ class Attention:
         """Transfer Learning without any frozen layers."""
         self.set_seeds()
 
-        early_stopping = EarlyStopping(
-            patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True
-        )
-        redonplat = ReduceLROnPlateau(
-            monitor="val_acc", factor=0.5, mode="max", patience=3, verbose=2
-        )
+        early_stopping = EarlyStopping(patience=EARLY_STOPPING_PATIENCE,
+                                       restore_best_weights=True)
+        redonplat = ReduceLROnPlateau(monitor="val_acc",
+                                      factor=0.5,
+                                      mode="max",
+                                      patience=3,
+                                      verbose=2)
         callbacks = [early_stopping, redonplat]
 
-        print("Fitting PTB dataset into attention model (training whole model)...")
-        pretrained_model = keras.models.load_model(
-            "models/attention_model_checkpoints/arythmia_checkpoint"
+        print(
+            "Fitting PTB dataset into attention model (training whole model)..."
         )
+        pretrained_model = keras.models.load_model(
+            "models/attention_model_checkpoints/arythmia_checkpoint")
 
         # replace output layer
         self.clf = keras.Model(
             inputs=pretrained_model.input,
-            outputs=Dense(2, activation="softmax", name="dense_3")(
-                pretrained_model.layers[-2].output
-            ),
+            outputs=Dense(2, activation="softmax",
+                          name="dense_3")(pretrained_model.layers[-2].output),
         )
 
         self.clf.compile(
@@ -220,12 +223,10 @@ class Attention:
         """Loads pretrained models"""
         if dataset == "mithb":
             self.clf = keras.models.load_model(
-                "models/attention_model_checkpoints/arythmia_checkpoint"
-            )
+                "models/attention_model_checkpoints/arythmia_checkpoint")
         else:
             self.clf = keras.models.load_model(
-                "models/attention_model_checkpoints/ptb_checkpoint"
-            )
+                "models/attention_model_checkpoints/ptb_checkpoint")
 
     def predict(self):
         """Generate predictions on test set"""
@@ -263,32 +264,29 @@ if __name__ == "__main__":
     base_model = Attention(dataset="ptbdb")
     base_model.train(load_model=True)
     base_model.predict()
-    cm = confusion_matrix(base_model.y_test, np.argmax(base_model.y_pred, axis=1))
+    cm = confusion_matrix(base_model.y_test, np.argmax(base_model.y_pred,
+                                                       axis=1))
     print(cm)
-    accuracy = accuracy_score(base_model.y_test, np.argmax(base_model.y_pred, axis=1))
+    accuracy = accuracy_score(base_model.y_test,
+                              np.argmax(base_model.y_pred, axis=1))
     print("Accuracy:", accuracy)
 
     transfer_model = Attention(dataset="ptbdb")
     transfer_model.transfer_learning_method_1()
     transfer_model.predict()
-    cm = confusion_matrix(
-        transfer_model.y_test, np.argmax(transfer_model.y_pred, axis=1)
-    )
+    cm = confusion_matrix(transfer_model.y_test,
+                          np.argmax(transfer_model.y_pred, axis=1))
     print(cm)
-    accuracy = accuracy_score(
-        transfer_model.y_test, np.argmax(transfer_model.y_pred, axis=1)
-    )
+    accuracy = accuracy_score(transfer_model.y_test,
+                              np.argmax(transfer_model.y_pred, axis=1))
     print("Accuracy:", accuracy)
 
     transfer_model_2 = Attention(dataset="ptbdb")
     transfer_model_2.transfer_learning_method_2()
     transfer_model_2.predict()
-    cm = confusion_matrix(
-        transfer_model_2.y_test, np.argmax(transfer_model_2.y_pred, axis=1)
-    )
+    cm = confusion_matrix(transfer_model_2.y_test,
+                          np.argmax(transfer_model_2.y_pred, axis=1))
     print(cm)
-    accuracy = accuracy_score(
-        transfer_model_2.y_test, np.argmax(transfer_model_2.y_pred, axis=1)
-    )
+    accuracy = accuracy_score(transfer_model_2.y_test,
+                              np.argmax(transfer_model_2.y_pred, axis=1))
     print("Accuracy:", accuracy)
-
