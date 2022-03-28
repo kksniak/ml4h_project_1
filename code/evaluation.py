@@ -23,7 +23,7 @@ def write_results(model_name: str, metrics: dict, figures: dict) -> None:
         figures: Dictionary of matplotlib figures to be saved
     """
 
-    directory = f"code/results/{model_name}"
+    directory = f"results/{model_name}"
     Path(directory).mkdir(parents=True, exist_ok=True)
     with open(f"{directory}/metrics.txt", "w", encoding="utf-8") as f:
         for key, value in metrics.items():
@@ -33,7 +33,8 @@ def write_results(model_name: str, metrics: dict, figures: dict) -> None:
         fig.savefig(f"{directory}/{name}", dpi=150)
 
 
-def get_plot(x: list, y: list, xlabel: str, ylabel: str, title: str) -> plt.figure:
+def get_plot(x: list, y: list, xlabel: str, ylabel: str,
+             title: str) -> plt.figure:
     """Generates a matplotlib plot.
 
     Args:
@@ -54,9 +55,8 @@ def get_plot(x: list, y: list, xlabel: str, ylabel: str, title: str) -> plt.figu
     return fig
 
 
-def evaluate_binary(
-    y_true: np.ndarray, y_pred: np.ndarray, y_pred_probas: np.ndarray
-) -> (dict, dict):
+def evaluate_binary(y_true: np.ndarray, y_pred: np.ndarray,
+                    y_pred_probas: np.ndarray) -> (dict, dict):
     """Computes metrics and figures for evaluating binary predictions
 
     Args:
@@ -74,7 +74,8 @@ def evaluate_binary(
     f1 = f1_score(y_true, y_pred, average="binary")
     auroc = roc_auc_score(y_true, y_pred)
     precision, recall, _ = precision_recall_curve(y_true, y_pred_probas[:, 1])
-    prc = get_plot(recall, precision, "Recall", "Precision", "Precision-Recall Curve")
+    prc = get_plot(recall, precision, "Recall", "Precision",
+                   "Precision-Recall Curve")
     auprc = auc(recall, precision)
     fpr, tpr, _ = roc_curve(y_true, y_pred_probas[:, 1])
     roc = get_plot(
@@ -113,15 +114,16 @@ def get_heatmap(data):
 
     cm_heatmap = sn.heatmap(data, annot=True, fmt="g", cmap="Greens", ax=ax)
     cm_heatmap.set(
-        xlabel="Predicted class", ylabel="True class", title="Confusion matrix",
+        xlabel="Predicted class",
+        ylabel="True class",
+        title="Confusion matrix",
     )
 
     return fig
 
 
-def evaluate(
-    model_name: str, y_pred_probas: np.ndarray, y_true: np.ndarray, save_results: bool
-) -> None:
+def evaluate(model_name: str, y_pred_probas: np.ndarray, y_true: np.ndarray,
+             save_results: bool) -> None:
     """Computes evaluation metrics for given predictions.
 
     Args:
