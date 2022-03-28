@@ -166,20 +166,3 @@ def evaluate(model_name: str, y_pred_probas: np.ndarray, y_true: np.ndarray,
         write_results(model_name, metrics, figures)
 
     print(metrics)
-
-
-# Example use
-if __name__ == "__main__":
-    from mock.sample_predictions import MULTICLASS_TEST_PREDS, BINARY_TEST_PREDS
-
-    y_pred_probas = MULTICLASS_TEST_PREDS["y_pred_probas"]
-    y_true = MULTICLASS_TEST_PREDS["y_true"]
-
-    evaluate("test_multiclass", y_pred_probas, y_true, save_results=True)
-
-    plt.clf()
-
-    y_pred_probas = BINARY_TEST_PREDS["y_pred_probas"]
-    y_true = BINARY_TEST_PREDS["y_true"]
-
-    evaluate("test_binary", y_pred_probas, y_true, save_results=True)

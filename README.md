@@ -28,8 +28,6 @@ The script uses the following options from `config.py`:
 
     .
     ├── code                                
-    │   ├── mock                        # Static mock data
-    │   │   └── sample_predictions.py
     │   ├── models                      # Classification models
     │   │   ├── attention_model_checkpoints
     │   │   ├── attention_model.py
@@ -56,8 +54,6 @@ The script uses the following options from `config.py`:
 ## Content Overview
 The following is an overview of the contents of this repository.
 
-- `mock/`
-    - `sample_predictions.py` – Contains static mock data used to test evaluation functions
 - `models/`
     - `attention_model_checkpoints/` – Contains checkpoints for attention models. Used to avoid retraining.
     - `attention_model.py` – Module implementing an attention-based model. 
