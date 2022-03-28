@@ -12,6 +12,7 @@ from utils import get_predictions, prepare_datasets
 import pathlib
 import numpy as np
 from torch.utils.data import DataLoader, TensorDataset, random_split
+from config import USE_GPU
 
 
 class vanillaCNN(pl.LightningModule):
@@ -121,10 +122,9 @@ def train_vanilla_cnn(
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=64)
-    test_loader = DataLoader(test_dataset, batch_size=64)
 
     trainer = pl.Trainer(
-        gpus=-1,
+        gpus=USE_GPU,
         max_epochs=max_epochs,
         callbacks=[EarlyStopping(monitor="val_loss", mode="min")],
         default_root_dir=pathlib.Path(__file__).parents[1].joinpath("saved_models"),

@@ -3,14 +3,16 @@ from typing import List
 import torch
 import torch.nn as nn
 from torch import Tensor
-from datasets import load_arrhythmia_dataset, load_PTB_dataset
-from utils import prepare_datasets
 from torch.utils.data import DataLoader
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 import pytorch_lightning as pl
 import pathlib
 import torchmetrics
 import torch.nn.functional as F
+
+from datasets import load_arrhythmia_dataset, load_PTB_dataset
+from utils import prepare_datasets
+from config import USE_GPU
 
 
 class BasicBlock(nn.Module):
@@ -27,7 +29,6 @@ class BasicBlock(nn.Module):
 
         norm_layer = nn.BatchNorm1d
 
-        # Both self.conv1 and self.downsample layers downsample the input when stride != 1
         self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=9, padding=4)
         self.bn1 = norm_layer(out_channels)
         self.relu = nn.ReLU(inplace=True)
@@ -179,10 +180,9 @@ def train_resnet(channels: list[int], dataset: str, max_epochs: int = 15):
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=64)
-    test_loader = DataLoader(test_dataset, batch_size=64)
 
     trainer = pl.Trainer(
-        gpus=-1,
+        gpus=USE_GPU,
         max_epochs=max_epochs,
         callbacks=[EarlyStopping(monitor="val_loss", mode="min")],
         default_root_dir=pathlib.Path(__file__).parents[1].joinpath("saved_models"),
@@ -258,10 +258,9 @@ def perform_transfer_learning(max_epochs: int = 15):
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=64)
-    test_loader = DataLoader(test_dataset, batch_size=64)
 
     trainer = pl.Trainer(
-        gpus=-1,
+        gpus=USE_GPU,
         max_epochs=max_epochs,
         callbacks=[EarlyStopping(monitor="val_loss", mode="min")],
         default_root_dir=pathlib.Path(__file__).parents[1].joinpath("saved_models"),

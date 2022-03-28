@@ -6,9 +6,10 @@ from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import torchmetrics
+
 from datasets import load_arrhythmia_dataset, load_PTB_dataset
 from utils import prepare_datasets
-import pathlib
+from config import USE_GPU
 
 
 class vanillaRNN(pl.LightningModule):
@@ -72,7 +73,7 @@ class vanillaRNN(pl.LightningModule):
             x = batch[0]
         else:
             x, y = batch
-        # print("Pred: ", x.shape)
+
         if len(x.shape) < 3:
             x.unsqueeze_(2)
 
@@ -85,7 +86,7 @@ class vanillaRNN(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        # optimizer = torch.optim.SGD(self.parameters(), lr=0.1, momentum=0.9)
+
         return optimizer
 
 
@@ -109,10 +110,9 @@ def train_vanilla_rnn(
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=64)
-    test_loader = DataLoader(test_dataset, batch_size=64)
 
     trainer = trainer = pl.Trainer(
-        gpus=-1,
+        gpus=USE_GPU,
         max_epochs=max_epochs,
         callbacks=[EarlyStopping(monitor="val_loss", mode="min")],
         gradient_clip_val=0.5,
