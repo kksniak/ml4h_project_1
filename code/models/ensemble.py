@@ -30,6 +30,12 @@ class Ensemble:
     def __init__(
         self, dataset: Literal["mithb", "ptbdb"], method: Literal["probs", "feats"]
     ):
+        """Class initialisation
+
+        Args:
+            dataset (Literal[&quot;mithb&quot;, &quot;ptbdb&quot;]): Dataset for training and testing
+            method (Literal[&quot;probs&quot;, &quot;feats&quot;]): Ensemble method used. Probs corresponds to ensmeble on softmax layers, while feats on hidden layers before Dense classifiers.
+        """
         self.dataset = dataset
         if method == "probs":
             self.featuriser = self.probabilities
@@ -39,6 +45,11 @@ class Ensemble:
         self.load_data(dataset)
 
     def init_models(self, models: dict = {}):
+        """method training/initialising sub-models used for ensemble
+
+        Args:
+            models (dict, optional): Dictionary of already trained models (restricted to categories attention, autoencoder, CNN, and ResNet models). Defaults to {}.
+        """
         
         if "attention" in models.keys():
             self.attention_model = models["attention"]
@@ -72,6 +83,14 @@ class Ensemble:
             )
 
     def probabilities(self, X):
+        """Ensemble method using softmax layers/probabilities for each function as features
+
+        Args:
+            X (np.arrray): either train or test set
+
+        Returns:
+            np.arrays: array of features for each sample
+        """
         X_probs = np.concatenate(
             (
                 self.attention_model.clf.predict(X),
@@ -93,6 +112,14 @@ class Ensemble:
         return X_probs
 
     def features(self, X):
+        """Ensemble method using hidden layers/latent space representation found before classifier in each mode.
+
+        Args:
+            X (np.arrray): either train or test set
+
+        Returns:
+            np.arrays: array of features for each sample
+        """
 
         attention_model_features = keras.Model(
             self.attention_model.clf.input, self.attention_model.clf.layers[-3].output
@@ -115,6 +142,7 @@ class Ensemble:
         return X_feats
 
     def train(self, models: dict = {}):
+        """Trains ensmble classifier on samples, and performs feature selection if needed"""
 
         print("Training individual models...")
         self.init_models(models)
@@ -137,6 +165,7 @@ class Ensemble:
         self.clf.fit(self.X_train, self.y_train)
 
     def predict(self):
+        """Prediction and feature selection if needed"""
         self.X_test = self.featuriser(self.X_test)
         if self.dataset == 'mithb' and self.method == "feats":
            self.X_test = self.selector_1.transform(self.X_test)
@@ -146,6 +175,7 @@ class Ensemble:
         self.y_pred_proba = self.clf.predict_proba(self.X_test)
 
     def load_data(self, dataset):
+        """Loads datasets"""
         if dataset == "mithb":
             X_train, y_train, X_test, y_test = load_arrhythmia_dataset()
         elif dataset == "ptbdb":
@@ -162,6 +192,7 @@ class Ensemble:
         self.y_test = y_test
 
     def set_seeds(self):
+        """Set seeds for reproducability"""
         os.environ["PYTHONHASHSEED"] = str(SEED)
         np.random.seed(SEED)
         random.seed(SEED)

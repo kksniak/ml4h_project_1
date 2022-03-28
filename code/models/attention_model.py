@@ -47,6 +47,16 @@ class Attention:
         num_heads=8,
         feedforward_layers=[64],
     ):
+        """Method defines an attention model
+
+        Args:
+            input_shape (np.array): Shape of input data.
+            n_classes (int): Number of different classes for softmax.
+            n_encoders (int, optional): Number of transfer encoders in model, in sequantiall manner. Defaults to 2.
+            key_dim (int, optional): Size of each attention head for query and key. Defaults to 8.
+            num_heads (int, optional):  Number of attention heads. Defaults to 8.
+            feedforward_layers (list, optional): Filters in convolutional layers in each encoder (the more filters the more layers). Defaults to [64].
+        """
 
         inputs = keras.Input(shape=input_shape)
         x = inputs
@@ -77,6 +87,11 @@ class Attention:
         self.clf = keras.Model(inputs, outputs)
 
     def train(self, load_model: boolean):
+        """Needs to be called on class to train models.
+
+        Args:
+            load_model (boolean): If set to true, instead of training model from scratch, loads pretrained models
+        """
         self.set_seeds()
 
         if load_model:
@@ -119,6 +134,8 @@ class Attention:
         )
 
     def transfer_learning_method_1(self):
+        """Trains models using transfer learning with frozen layers (apart from last 3 dense layers).
+        """
         self.set_seeds()
 
         early_stopping = EarlyStopping(
@@ -161,6 +178,7 @@ class Attention:
         )
 
     def transfer_learning_method_2(self):
+        """Transfer Learning without any frozen layers."""
         self.set_seeds()
 
         early_stopping = EarlyStopping(
@@ -199,6 +217,7 @@ class Attention:
         )
 
     def load_model(self, dataset: Literal["mithb", "ptbdb"]):
+        """Loads pretrained models"""
         if dataset == "mithb":
             self.clf = keras.models.load_model(
                 "models/attention_model_checkpoints/arythmia_checkpoint"
@@ -209,9 +228,11 @@ class Attention:
             )
 
     def predict(self):
+        """Generate predictions on test set"""
         self.y_pred = self.clf.predict(self.X_test)
 
     def load_data(self, dataset):
+        """Loads data"""
         if dataset == "mithb":
             X_train, y_train, X_test, y_test = load_arrhythmia_dataset()
         elif dataset == "ptbdb":
@@ -228,6 +249,7 @@ class Attention:
         self.y_test = y_test
 
     def set_seeds(self):
+        """Set seeds for repreducability"""
         os.environ["PYTHONHASHSEED"] = str(SEED)
         tf.random.set_seed(SEED)
         tf.keras.initializers.glorot_normal(SEED)
