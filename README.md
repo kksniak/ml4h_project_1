@@ -1,4 +1,4 @@
-# Cardiac Abnormalities Prediction - Machine Learning for Health Care Project 1
+# Cardiac Abnormality Classification - Machine Learning for Health Care Project 1
 
 ## Table of Contents
 
