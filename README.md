@@ -12,8 +12,8 @@
 ### Environment Setup
 
 1. Create a top-level directory named `data` and put the csv files in it. A detailed diagram is included in the [repository structure](#repository-structure).
-1. Create a conda environment with `conda env create -f [ENV_NAME].yml`, using the desired environment file. There MiniConda environment is recommended unless support for hardware acceleration with Apple's [Metal API](https://developer.apple.com/metal/) is desired.
-1. Activate the conda environment with `conda activate ml4h`
+1. Create a conda environment with `conda env create -f [ENV_NAME].yml`, using the desired environment file. The `environment.yml` is recommended unless support for hardware acceleration with Apple's [Metal API](https://developer.apple.com/metal/) is desired.
+1. Activate the conda environment with `conda activate ml4h-base`
 
 ### Running the Code
 For reproducing the results from the report, a script has been provided that trains and evaluates the models, and saves the results in the `results/` directory.
@@ -50,8 +50,8 @@ The script uses the following options from `config.py`:
     ├── .gitignore
     ├── .pylintrc                       # Linting config
     ├── .style.yapf                     # Formatter config
-    ├── .environment-m1.yml             # MiniForge environment
-    └── .environment.yml                # MiniConda environment
+    ├── .environment-m1.yml             # M1 Mac environment
+    └── .environment.yml                # Intel environment
 
 ## Content Overview
 The following is an overview of the contents of this repository.
